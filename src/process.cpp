@@ -1,4 +1,4 @@
-#include "process.h"
+#include "../include/process.h"
 
 Process::Process(int _id, int _arrivalTime, int _cpu, int _io, int _priority) {
         id = _id;
