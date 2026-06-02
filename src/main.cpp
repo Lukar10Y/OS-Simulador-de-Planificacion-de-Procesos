@@ -1,5 +1,5 @@
 #include <iostream>
-#include "proceso.h"
+#include "process.h"
 
 int main() {
     std::cout << "Simulador de Planificacion de Procesos Inicializado" << std::endl;
