@@ -1,0 +1,15 @@
+# Compilados y Ejecutables
+*.exe
+*.o
+*.obj
+*.out
+
+# Carpetas de configuración de VS Code y editores
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Archivos temporales del sistema
+Thumbs.db
+.DS_Store
