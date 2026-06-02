@@ -1,12 +1,14 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 
 enum State {
-    READY = 0,
-    RUNNING = 1,
-    BLOCKED = 2,
-    TERMINATED = 3
+    IDLE = 0,
+    READY = 1,
+    RUNNING = 2,
+    BLOCKED = 3,
+    TERMINATED = 4
 };
 
 struct Process {
@@ -30,13 +32,8 @@ struct Process {
     int completionTime;
     int totalTime;
 
-    Process(int _id, int _arrivalTime, int _cpu, int _io, int _priority);
+    Process(int _id, int _arrivalTime, int _CPU, int _IO, int _priority);
 
-    void print() const {
-        std::cout << " [Process Created] ID: " << id 
-                << " | Arrival: " << arrivalTime 
-                << " | CPU Burst: " << initialTimeCPU 
-                << " | I/O Burst: " << initialTimeIO 
-                << " | Priority: " << priority << "\n";
-    }
+    std::string getState() const;
+    void print() const;
 };
