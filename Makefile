@@ -3,7 +3,7 @@ CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude
 OBJDIR = obj
 SRCDIR = src
-ALGODIR = src/algoritmos
+ALGODIR = src/algorithms
 
 # Detección del Sistema Operativo
 ifeq ($(OS),Windows_NT)

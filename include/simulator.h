@@ -1,11 +1,11 @@
 #pragma once
 
-#include "process.h"
-#include <vector>
-#include <string>
+#include "algorithms.h"
 
 struct Simulator {
     int actualTime;
+
+    // Colas
     std::vector<Process*> initialList;
     std::vector<Process*> readyList;
     std::vector<Process*> blockedList;

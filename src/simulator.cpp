@@ -6,7 +6,7 @@ Simulator::Simulator() {
 }
 
 Simulator::~Simulator() {
-    std::cout << "\n[Simulator] Limpiando memoria dinámica del Heap..." << std::endl;
+    std::cout << "\n[Simulator] Limpiando memoria dinamica del Heap..." << std::endl;
     for (Process* proc : backupList) {
         if (proc != nullptr) {
             delete proc;
@@ -18,7 +18,7 @@ Simulator::~Simulator() {
     terminatedList.clear();
     backupList.clear();
     runningProcess = nullptr;
-    std::cout << "[Simulator] ¡Memoria liberada con éxito! Todos los bloques devueltos al S.O.\n" << std::endl;
+    std::cout << "[Simulator] Memoria liberada con exito. Todos los bloques devueltos al S.O.\n" << std::endl;
 }
 
 void Simulator::addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int priority) {
@@ -54,13 +54,44 @@ void Simulator::run() {
 
 void Simulator::runTick() {
     std::cout << "[Tick] Time: " << actualTime << "\n";
-    for(size_t i = 0; i < initialList.size(); ++i){
-        if(initialList[i]->arrivalTime == actualTime){
-            readyList.push_back(initialList[i]);
-            initialList.erase(initialList.begin() + i);
-            --i;
-            readyList.back()->state = READY;
-            readyList.back()->print();
+    if(runningProcess != nullptr){
+        std::cout << "  [Running Process] ID: " << runningProcess->id << "\n";
+        --(runningProcess->remainingTimeCPU);
+        if(runningProcess->remainingTimeCPU <= 0) {
+            runningProcess->state = TERMINATED;
+            runningProcess->completionTime = actualTime;
+            terminatedList.push_back(runningProcess);
+            std::cout << "      [Process Terminated] ID: " << runningProcess->id << "\n";
+            runningProcess = nullptr;
+        }
+    }
+    for(auto it = blockedList.begin(); it != blockedList.end(); ) {
+        Process* process = *it;
+        --(process->remainingTimeIO);
+        if(process->remainingTimeIO <= 0) {
+            process->state = READY;
+            readyList.push_back(process);
+            std::cout << "  [Process Unblocked] ID: " << process->id << "\n";
+            it = blockedList.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    for(auto it = initialList.begin(); it != initialList.end(); ) {
+        Process* process = *it;
+        if(process->arrivalTime == actualTime) {
+            process->state = READY;
+            readyList.push_back(process);
+            std::cout << "  [Process Arrived] ID: " << process->id << "\n";
+            it = initialList.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    if(runningProcess == nullptr) {
+        runningProcess = FCFS(readyList);
+        if(runningProcess != nullptr){
+            std::cout << "  [Process Running] ID: " << runningProcess->id << "\n";
         }
     }
 }
