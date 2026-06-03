@@ -2,6 +2,12 @@
 
 #include "algorithms.h"
 
+enum AlgorithmType {
+    FCFS = 0,
+    SJF = 1,
+    NPP = 2
+};
+
 struct Simulator {
     int actualTime;
 
@@ -12,6 +18,7 @@ struct Simulator {
     std::vector<Process*> terminatedList;
     std::vector<Process*> backupList;
     Process* runningProcess;
+    AlgorithmType algorithm;
 
     Simulator();
     ~Simulator();

@@ -2,6 +2,9 @@
 
 #include "process.h"
 #include <vector>
+#include <algorithm>
 
 // No expulsivos
-Process* FCFS(std::vector<Process*>& readyList);
+Process* doFCFS(std::vector<Process*>& readyList);
+Process* doSJF(std::vector<Process*>& readyList);
+Process* doNPP(std::vector<Process*>& readyList);

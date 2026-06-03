@@ -3,6 +3,7 @@
 Simulator::Simulator() {
         actualTime = 0;
         runningProcess = nullptr;
+        algorithm = NPP;
 }
 
 Simulator::~Simulator() {
@@ -29,11 +30,12 @@ void Simulator::addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int
 }
 
 void Simulator::loadProcesses() {
-    addProcess(1, 0, 5, 3, 1);
-    addProcess(2, 1, 5, 3, 2);
-    addProcess(3, 2, 5, 3, 3);
-    addProcess(4, 3, 5, 3, 4);
-    addProcess(5, 4, 5, 3, 5);
+    // ID, Arrival Time, CPU Burst Time, I/O Burst Time, Priority
+    addProcess(1, 0, 10, 3, 1);
+    addProcess(2, 1, 8, 3, 2);
+    addProcess(3, 2, 6, 3, 3);
+    addProcess(4, 3, 4, 3, 5);
+    addProcess(5, 4, 2, 3, 4);
 }
 
 bool Simulator::checkExit() const {
@@ -98,7 +100,17 @@ void Simulator::runTick() {
     updateQueue(BLOCKED);
     updateQueue(READY);
     if(runningProcess == nullptr) {
-        runningProcess = FCFS(readyList);
+        switch(algorithm) {
+            case FCFS:
+                runningProcess = doFCFS(readyList);
+                break;
+            case SJF:
+                runningProcess = doSJF(readyList);
+                break;
+            case NPP:
+                runningProcess = doNPP(readyList);
+                break;
+        }
         if(runningProcess != nullptr){
             std::cout << "  [Process Running] ID: " << runningProcess->id << "\n";
         }
