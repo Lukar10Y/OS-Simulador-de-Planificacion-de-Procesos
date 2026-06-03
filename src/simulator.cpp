@@ -3,7 +3,7 @@
 Simulator::Simulator() {
         actualTime = 0;
         runningProcess = nullptr;
-        algorithm = NPP;
+        algorithm = RAND;
 }
 
 Simulator::~Simulator() {
@@ -109,6 +109,9 @@ void Simulator::runTick() {
                 break;
             case NPP:
                 runningProcess = doNPP(readyList);
+                break;
+            case RAND:
+                runningProcess = doRAND(readyList);
                 break;
         }
         if(runningProcess != nullptr){

@@ -5,7 +5,8 @@
 enum AlgorithmType {
     FCFS = 0,
     SJF = 1,
-    NPP = 2
+    NPP = 2,
+    RAND = 3
 };
 
 struct Simulator {
