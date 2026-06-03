@@ -25,4 +25,5 @@ struct Simulator {
     //void print();
 
     bool checkExit() const;
+    void updateQueue(State state);
 };

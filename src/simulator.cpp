@@ -40,6 +40,36 @@ bool Simulator::checkExit() const {
     return initialList.empty() && readyList.empty() && blockedList.empty() && runningProcess == nullptr;
 }
 
+void Simulator::updateQueue(State state) {
+    if(state == BLOCKED) {
+        for(auto it = blockedList.begin(); it != blockedList.end(); ) {
+            Process* process = *it;
+            --(process->remainingTimeIO);
+            if(process->remainingTimeIO <= 0) {
+                process->state = READY;
+                readyList.push_back(process);
+                std::cout << "  [Process Unblocked] ID: " << process->id << "\n";
+                it = blockedList.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+    else if(state == READY) {
+        for(auto it = initialList.begin(); it != initialList.end(); ) {
+            Process* process = *it;
+            if(process->arrivalTime == actualTime) {
+                process->state = READY;
+                readyList.push_back(process);
+                std::cout << "  [Process Arrived] ID: " << process->id << "\n";
+                it = initialList.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+}
+
 void Simulator::run() {
     loadProcesses();
     std::cout << "      [RUNNING]\n";
@@ -65,29 +95,8 @@ void Simulator::runTick() {
             runningProcess = nullptr;
         }
     }
-    for(auto it = blockedList.begin(); it != blockedList.end(); ) {
-        Process* process = *it;
-        --(process->remainingTimeIO);
-        if(process->remainingTimeIO <= 0) {
-            process->state = READY;
-            readyList.push_back(process);
-            std::cout << "  [Process Unblocked] ID: " << process->id << "\n";
-            it = blockedList.erase(it);
-        } else {
-            ++it;
-        }
-    }
-    for(auto it = initialList.begin(); it != initialList.end(); ) {
-        Process* process = *it;
-        if(process->arrivalTime == actualTime) {
-            process->state = READY;
-            readyList.push_back(process);
-            std::cout << "  [Process Arrived] ID: " << process->id << "\n";
-            it = initialList.erase(it);
-        } else {
-            ++it;
-        }
-    }
+    updateQueue(BLOCKED);
+    updateQueue(READY);
     if(runningProcess == nullptr) {
         runningProcess = FCFS(readyList);
         if(runningProcess != nullptr){
