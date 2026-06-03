@@ -10,3 +10,6 @@ Process* doFCFS(std::vector<Process*>& readyList);
 Process* doSJF(std::vector<Process*>& readyList);
 Process* doNPP(std::vector<Process*>& readyList);
 Process* doRAND(std::vector<Process*>& readyList);
+
+// Expulsivos
+Process* doSRTF(std::vector<Process*>& readyList, Process* runningProcess);

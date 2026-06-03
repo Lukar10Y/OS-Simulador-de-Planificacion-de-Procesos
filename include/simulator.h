@@ -6,7 +6,8 @@ enum AlgorithmType {
     FCFS = 0,
     SJF = 1,
     NPP = 2,
-    RAND = 3
+    RAND = 3,
+    SRTF = 4
 };
 
 struct Simulator {
@@ -34,4 +35,5 @@ struct Simulator {
 
     bool checkExit() const;
     void updateQueue(State state);
+    void doAlgorithm();
 };

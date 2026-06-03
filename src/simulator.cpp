@@ -3,7 +3,7 @@
 Simulator::Simulator() {
         actualTime = 0;
         runningProcess = nullptr;
-        algorithm = RAND;
+        algorithm = SRTF;
 }
 
 Simulator::~Simulator() {
@@ -32,9 +32,9 @@ void Simulator::addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int
 void Simulator::loadProcesses() {
     // ID, Arrival Time, CPU Burst Time, I/O Burst Time, Priority
     addProcess(1, 0, 10, 3, 1);
-    addProcess(2, 1, 8, 3, 2);
-    addProcess(3, 2, 6, 3, 3);
-    addProcess(4, 3, 4, 3, 5);
+    addProcess(2, 1, 2, 3, 2);
+    addProcess(3, 2, 2, 3, 3);
+    addProcess(4, 3, 2, 3, 5);
     addProcess(5, 4, 2, 3, 4);
 }
 
@@ -72,6 +72,34 @@ void Simulator::updateQueue(State state) {
     }
 }
 
+void Simulator::doAlgorithm() {
+    if(runningProcess == nullptr) {
+        switch(algorithm) {
+            case FCFS:
+                runningProcess = doFCFS(readyList);
+                break;
+            case SJF:
+                runningProcess = doSJF(readyList);
+                break;
+            case NPP:
+                runningProcess = doNPP(readyList);
+                break;
+            case RAND:
+                runningProcess = doRAND(readyList);
+                break;
+            default:                    
+                break;
+        }   
+    }
+    switch(algorithm) {
+        case SRTF:
+            runningProcess = doSRTF(readyList, runningProcess);
+            break;
+        default:
+            break;
+    } 
+}
+
 void Simulator::run() {
     loadProcesses();
     std::cout << "      [RUNNING]\n";
@@ -99,23 +127,8 @@ void Simulator::runTick() {
     }
     updateQueue(BLOCKED);
     updateQueue(READY);
-    if(runningProcess == nullptr) {
-        switch(algorithm) {
-            case FCFS:
-                runningProcess = doFCFS(readyList);
-                break;
-            case SJF:
-                runningProcess = doSJF(readyList);
-                break;
-            case NPP:
-                runningProcess = doNPP(readyList);
-                break;
-            case RAND:
-                runningProcess = doRAND(readyList);
-                break;
-        }
-        if(runningProcess != nullptr){
+    doAlgorithm();
+    if(runningProcess != nullptr) {
             std::cout << "  [Process Running] ID: " << runningProcess->id << "\n";
-        }
     }
 }
