@@ -1,4 +1,11 @@
-# 1. Detección del Sistema Operativo
+# Variables del Compilador
+CXX = g++
+CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude
+OBJDIR = obj
+SRCDIR = src
+ALGODIR = src/algoritmos
+
+# Detección del Sistema Operativo
 ifeq ($(OS),Windows_NT)
     # Configuración para Windows
     RM = del /q
@@ -15,18 +22,11 @@ else
     FIX_PATH = $1
 endif
 
-# 2. Variables del Compilador
-CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude
-OBJDIR = obj
-SRCDIR = src
-ALGODIR = src/algoritmos
-
-# 3. Buscar archivos fuentes y objetos
+# Buscar archivos fuentes y objetos
 SOURCES = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(ALGODIR)/*.cpp)
 OBJECTS = $(patsubst %.cpp, $(OBJDIR)/%.o, $(notdir $(SOURCES)))
 
-# 4. Reglas de compilación
+# Reglas de compilación
 all: $(OBJDIR) $(TARGET)
 
 $(TARGET): $(OBJECTS)
@@ -41,7 +41,7 @@ $(OBJDIR)/%.o: $(ALGODIR)/%.cpp | $(OBJDIR)
 $(OBJDIR):
 	@$(MKDIR)
 
-# 5. Regla de Limpieza multiplataforma
+# Regla de Limpieza multiplataforma
 clean:
 ifeq ($(OS),Windows_NT)
 	@if exist $(OBJDIR) $(RMDIR) $(OBJDIR)
