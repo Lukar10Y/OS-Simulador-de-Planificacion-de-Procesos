@@ -35,5 +35,5 @@ struct Simulator {
 
     bool checkExit() const;
     void updateQueue(State state);
-    void doAlgorithm();
+    Process* doAlgorithm();
 };

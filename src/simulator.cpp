@@ -3,6 +3,7 @@
 Simulator::Simulator() {
         actualTime = 0;
         runningProcess = nullptr;
+        //FCFS, SJF, NPP, RAND, SRTF
         algorithm = SRTF;
 }
 
@@ -72,20 +73,20 @@ void Simulator::updateQueue(State state) {
     }
 }
 
-void Simulator::doAlgorithm() {
+Process* Simulator::doAlgorithm() {
     if(runningProcess == nullptr) {
         switch(algorithm) {
             case FCFS:
-                runningProcess = doFCFS(readyList);
+                return doFCFS(readyList);
                 break;
             case SJF:
-                runningProcess = doSJF(readyList);
+                return doSJF(readyList);
                 break;
             case NPP:
-                runningProcess = doNPP(readyList);
+                return doNPP(readyList);
                 break;
             case RAND:
-                runningProcess = doRAND(readyList);
+                return doRAND(readyList);
                 break;
             default:                    
                 break;
@@ -93,11 +94,12 @@ void Simulator::doAlgorithm() {
     }
     switch(algorithm) {
         case SRTF:
-            runningProcess = doSRTF(readyList, runningProcess);
+            return doSRTF(readyList, runningProcess);
             break;
         default:
             break;
-    } 
+    }
+    return nullptr; 
 }
 
 void Simulator::run() {
@@ -127,8 +129,17 @@ void Simulator::runTick() {
     }
     updateQueue(BLOCKED);
     updateQueue(READY);
-    doAlgorithm();
+    Process* selected = doAlgorithm();
+    if(selected != nullptr) {
+        if(runningProcess != nullptr) {
+            runningProcess->state = READY;
+            readyList.push_back(runningProcess);
+        }
+        runningProcess = selected;
+        runningProcess->state = RUNNING;
+        readyList.erase(std::remove(readyList.begin(), readyList.end(), selected), readyList.end());
+    }
     if(runningProcess != nullptr) {
-            std::cout << "  [Process Running] ID: " << runningProcess->id << "\n";
+        std::cout << "  [Process Running] ID: " << runningProcess->id << "\n";
     }
 }
