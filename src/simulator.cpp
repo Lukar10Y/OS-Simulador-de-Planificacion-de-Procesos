@@ -3,8 +3,8 @@
 Simulator::Simulator() {
         actualTime = 0;
         runningProcess = nullptr;
-        //FCFS, SJF, NPP, RAND, SRTF
-        algorithm = SRTF;
+        //FCFS, SJF, NPP, RAND, SRTF, PP
+        algorithm = PP;
 }
 
 Simulator::~Simulator() {
@@ -32,7 +32,7 @@ void Simulator::addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int
 
 void Simulator::loadProcesses() {
     // ID, Arrival Time, CPU Burst Time, I/O Burst Time, Priority
-    addProcess(1, 0, 10, 3, 1);
+    addProcess(1, 0, 10, 3, 6);
     addProcess(2, 1, 2, 3, 2);
     addProcess(3, 2, 2, 3, 3);
     addProcess(4, 3, 2, 3, 5);
@@ -95,6 +95,9 @@ Process* Simulator::doAlgorithm() {
     switch(algorithm) {
         case SRTF:
             return doSRTF(readyList, runningProcess);
+            break;
+        case PP:    
+            return doPP(readyList, runningProcess);
             break;
         default:
             break;

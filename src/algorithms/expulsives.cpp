@@ -16,3 +16,20 @@ Process* doSRTF(std::vector<Process*>& readyList, Process* runningProcess) {
     }
     return nullptr;
 }
+
+Process* doPP(std::vector<Process*>& readyList, Process* runningProcess) {
+    if (!readyList.empty()) {
+        auto it = std::min_element(readyList.begin(), readyList.end(), [](Process* a, Process* b) {
+            return a->priority < b->priority;
+        });
+        if (runningProcess != nullptr) {
+            if ((*it)->priority < runningProcess->priority) {
+                return *it;
+            }
+        }
+        else {
+            return *it;
+        }
+    }
+    return nullptr;
+}

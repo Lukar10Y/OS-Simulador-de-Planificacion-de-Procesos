@@ -7,7 +7,8 @@ enum AlgorithmType {
     SJF = 1,
     NPP = 2,
     RAND = 3,
-    SRTF = 4
+    SRTF = 4,
+    PP = 5
 };
 
 struct Simulator {

@@ -13,3 +13,4 @@ Process* doRAND(std::vector<Process*>& readyList);
 
 // Expulsivos
 Process* doSRTF(std::vector<Process*>& readyList, Process* runningProcess);
+Process* doPP(std::vector<Process*>& readyList, Process* runningProcess);
