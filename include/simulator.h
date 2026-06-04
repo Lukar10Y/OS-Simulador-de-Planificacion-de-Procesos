@@ -35,7 +35,8 @@ struct Simulator {
     //void loadRandomProcesses();
     void run();
     void runTick();
-    void getFinalMetrics();
+    void getMetrics();
+    void calcFinalMetrics();
     void getAverageMetrics();
     void print();
 

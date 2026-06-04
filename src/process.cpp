@@ -7,9 +7,7 @@ Process::Process(int _id, int _arrivalTime, int _CPU, int _IO, int _priority, in
     initialTimeCPU = remainingTimeCPU = _CPU;
     initialTimeIO = remainingTimeIO = _IO;
     state = IDLE;
-    waitingTime = 0;
-    completionTime = 0;
-    turnAroundTime = 0;
+    waitingTime = completionTime = turnAroundTime = blockTime = executionTime = 0;
     initialCycles = remainingCycles = _cycles;
 }
 

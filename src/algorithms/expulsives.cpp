@@ -46,9 +46,6 @@ Process* doRR(std::vector<Process*>& readyList, Process* runningProcess, int& co
             if (!readyList.empty()) {
                 return *readyList.begin();
             }
-            else {
-                return runningProcess;
-            }
         }
     }
     return nullptr;

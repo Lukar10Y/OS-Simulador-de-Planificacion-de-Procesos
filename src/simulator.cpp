@@ -34,7 +34,7 @@ void Simulator::addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int
 
 void Simulator::loadProcesses() {
     // ID, Arrival Time, CPU Burst Time, I/O Burst Time, Priority, cycles = 1
-    addProcess(1, 0, 10, 3, 6, 2);
+    addProcess(1, 0, 5, 3, 6, 2);
     addProcess(2, 1, 2, 3, 2, 2);
     addProcess(3, 2, 2, 3, 3, 2);
     addProcess(4, 3, 2, 3, 5);
@@ -50,6 +50,7 @@ void Simulator::updateQueue(State state) {
         for(auto it = blockedList.begin(); it != blockedList.end(); ) {
             Process* process = *it;
             --(process->remainingTimeIO);
+            ++(process->blockTime);
             if(process->remainingTimeIO <= 0) {
                 process->state = READY;
                 process->remainingTimeCPU = process->initialTimeCPU;
@@ -124,7 +125,8 @@ void Simulator::run() {
     }
     std::cout << "      [SIMULATION ENDED]\n";
     print();
-    getFinalMetrics();
+    getMetrics();
+    calcFinalMetrics();
     getAverageMetrics();
 }
 
@@ -134,6 +136,7 @@ void Simulator::runTick() {
     if(runningProcess != nullptr) {
         std::cout << "  [Running Process] ID: " << runningProcess->id << "\n";
         --(runningProcess->remainingTimeCPU);
+        ++(runningProcess->executionTime);
         if(runningProcess->remainingTimeCPU <= 0) {
             if(runningProcess->remainingTimeIO > 0) {
                 runningProcess->state = BLOCKED;
@@ -144,6 +147,7 @@ void Simulator::runTick() {
             else {
                 runningProcess->state = TERMINATED;
                 runningProcess->completionTime = actualTime;
+                runningProcess->turnAroundTime = runningProcess->completionTime - runningProcess->arrivalTime;
                 terminatedList.push_back(runningProcess);
                 std::cout << "          [Process Terminated] ID: " << runningProcess->id << "\n";
                 runningProcess = nullptr;
@@ -160,6 +164,9 @@ void Simulator::runTick() {
         runningProcess = selected;
         runningProcess->state = RUNNING;
         readyList.erase(std::remove(readyList.begin(), readyList.end(), selected), readyList.end());
+    }
+    for(Process* process : readyList) {
+        ++(process->waitingTime);
     }
     if(runningProcess != nullptr) {
         std::cout << "  [Process Running] ID: " << runningProcess->id << "\n";
@@ -186,20 +193,28 @@ void Simulator::print() {
     }
 }
 
-void Simulator::getFinalMetrics() {
+void Simulator::calcFinalMetrics() {
     std::cout << "\n[Metrics]\n";
     for (const auto& process : terminatedList) {
-        process->turnAroundTime = process->completionTime - process->arrivalTime;
-        process->waitingTime = process->turnAroundTime - process->initialTimeCPU - process->initialTimeIO;
-        process->blockTime = process->initialTimeIO * (process->initialCycles);
-        process->executionTime = process->initialTimeCPU * (process->initialCycles + 1);
         std::cout << "  Process ID: " << process->id 
-                  << " | Waiting Time: " << process->waitingTime 
-                  << " | Turnaround Time: " << process->turnAroundTime 
+                  << " | Waiting Time: " << process->completionTime - process->arrivalTime - process->initialTimeCPU - process->initialTimeIO
+                  << " | Turnaround Time: " << process->completionTime - process->arrivalTime 
                   << " | Completion Time: " << process->completionTime 
-                  << " | Block Time: " << process->blockTime 
-                  << " | Execution Time: " << process->executionTime << "\n";
+                  << " | Block Time: " << process->initialTimeIO * (process->initialCycles) 
+                  << " | Execution Time: " << process->initialTimeCPU * (process->initialCycles + 1) << "\n";
     }
+}
+
+void Simulator::getMetrics() {
+        std::cout << "\n[Metrics]\n";
+        for (const auto& process : terminatedList) {
+            std::cout << "  Process ID: " << process->id 
+                    << " | Waiting Time: " << process->waitingTime
+                    << " | Turnaround Time: " << process->turnAroundTime 
+                    << " | Completion Time: " << process->completionTime 
+                    << " | Block Time: " << process->blockTime 
+                    << " | Execution Time: " << process->executionTime << "\n";
+        }
 }
 
 void Simulator::getAverageMetrics() {
