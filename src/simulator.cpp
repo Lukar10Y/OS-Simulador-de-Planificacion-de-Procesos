@@ -130,6 +130,17 @@ void Simulator::run() {
 
 void Simulator::runTick() {
     std::cout << "[Tick] Time: " << actualTime << "\n";
+    updateQueue(READY);
+    Process* selected = doAlgorithm();
+    if(selected != nullptr) {
+        if(runningProcess != nullptr) {
+            runningProcess->state = READY;
+            readyList.push_back(runningProcess);
+        }
+        runningProcess = selected;
+        runningProcess->state = RUNNING;
+        readyList.erase(std::remove(readyList.begin(), readyList.end(), selected), readyList.end());
+    }
     for(Process* process : readyList) {
         ++(process->waitingTime);
     }
@@ -152,20 +163,6 @@ void Simulator::runTick() {
                 runningProcess = nullptr;
             }
         }
-    }
-    updateQueue(READY);
-    Process* selected = doAlgorithm();
-    if(selected != nullptr) {
-        if(runningProcess != nullptr) {
-            runningProcess->state = READY;
-            readyList.push_back(runningProcess);
-        }
-        runningProcess = selected;
-        runningProcess->state = RUNNING;
-        readyList.erase(std::remove(readyList.begin(), readyList.end(), selected), readyList.end());
-    }
-    if(runningProcess != nullptr) {
-        std::cout << "  [Process Running] ID: " << runningProcess->id << "\n";
     }
     else {
         ++idleTime;

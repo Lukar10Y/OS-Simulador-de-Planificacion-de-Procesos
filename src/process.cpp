@@ -38,7 +38,7 @@ void Process::tickOnCycles() {
 }
 
 void Process::tickOnCompletionTime(const int& actualTime) {
-    completionTime = actualTime;
+    completionTime = actualTime + 1;
     turnAroundTime = completionTime - arrivalTime;
 }
 
