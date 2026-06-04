@@ -25,6 +25,7 @@ struct Simulator {
     AlgorithmType algorithm;
     int quantum;
     int counter;
+    int idleTime;
 
     Simulator();
     ~Simulator();
@@ -34,8 +35,9 @@ struct Simulator {
     //void loadRandomProcesses();
     void run();
     void runTick();
-    //void updateMetrics();
-    //void print();
+    void getFinalMetrics();
+    void getAverageMetrics();
+    void print();
 
     bool checkExit() const;
     void updateQueue(State state);

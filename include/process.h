@@ -30,9 +30,11 @@ struct Process {
     int remainingCycles;
 
     // Métricas
-    int waitingTime;      
-    int completionTime;
-    int turnAroundTime;
+    int waitingTime; // Turnaround Time - CPU Time (executionTime) - I/O Time (blockTime)     
+    int completionTime; // actualTime cuando el proceso termina
+    int turnAroundTime; // completionTime - arrivalTime
+    int blockTime; // inicialTimeIO * (initialCycles)
+    int executionTime; // inicialTimeCPU * (initialCycles + 1)
 
     Process(int _id, int _arrivalTime, int _CPU, int _IO, int _priority, int _cycles = 1);
 

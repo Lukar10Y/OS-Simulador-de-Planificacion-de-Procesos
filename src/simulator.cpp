@@ -120,10 +120,12 @@ void Simulator::run() {
     while(!checkExit())
     {
         runTick();
-        //updateMetrics();
-        //print();
         ++actualTime;
     }
+    std::cout << "      [SIMULATION ENDED]\n";
+    print();
+    getFinalMetrics();
+    getAverageMetrics();
 }
 
 void Simulator::runTick() {
@@ -162,4 +164,68 @@ void Simulator::runTick() {
     if(runningProcess != nullptr) {
         std::cout << "  [Process Running] ID: " << runningProcess->id << "\n";
     }
+    else {
+        ++idleTime;
+    }
+}
+
+void Simulator::print() {
+    std::cout << "\n[Simulator State at Time " << actualTime << "]\n";
+    std::cout << "  Running Process: " << (runningProcess ? std::to_string(runningProcess->id) : "None") << "\n";
+    std::cout << "\n  Ready List: \n";
+    for (const auto& process : readyList) {
+        process->print();
+    }
+    std::cout << "\n  Blocked List: \n";
+    for (const auto& process : blockedList) {
+        process->print();
+    }
+    std::cout << "\n  Terminated List: \n";
+    for (const auto& process : terminatedList) {
+        process->print();
+    }
+}
+
+void Simulator::getFinalMetrics() {
+    std::cout << "\n[Metrics]\n";
+    for (const auto& process : terminatedList) {
+        process->turnAroundTime = process->completionTime - process->arrivalTime;
+        process->waitingTime = process->turnAroundTime - process->initialTimeCPU - process->initialTimeIO;
+        process->blockTime = process->initialTimeIO * (process->initialCycles);
+        process->executionTime = process->initialTimeCPU * (process->initialCycles + 1);
+        std::cout << "  Process ID: " << process->id 
+                  << " | Waiting Time: " << process->waitingTime 
+                  << " | Turnaround Time: " << process->turnAroundTime 
+                  << " | Completion Time: " << process->completionTime 
+                  << " | Block Time: " << process->blockTime 
+                  << " | Execution Time: " << process->executionTime << "\n";
+    }
+}
+
+void Simulator::getAverageMetrics() {
+    int totalProcesses = terminatedList.size();
+    if (totalProcesses == 0) {
+        std::cout << "\n[Average Metrics] No processes were terminated.\n";
+        return;
+    }
+
+    double totalWaitingTime = 0;
+    double totalTurnAroundTime = 0;
+    double totalBlockTime = 0;
+    double totalExecutionTime = 0;
+
+    for (const auto& process : terminatedList) {
+        totalWaitingTime += process->waitingTime;
+        totalTurnAroundTime += process->turnAroundTime;
+        totalBlockTime += process->blockTime;
+        totalExecutionTime += process->executionTime;
+    }
+
+    std::cout << "\n[Average Metrics]\n";
+    std::cout << "  Total Processes: " << totalProcesses << "\n";
+    std::cout << "  CPU percentage used: " << ((actualTime - idleTime) / static_cast<double>(actualTime)) * 100 << "%\n";
+    std::cout << "  Average Waiting Time: " << totalWaitingTime / totalProcesses << "\n";
+    std::cout << "  Average Turnaround Time: " << totalTurnAroundTime / totalProcesses << "\n";
+    std::cout << "  Average Block Time: " << totalBlockTime / totalProcesses << "\n";
+    std::cout << "  Average Execution Time: " << totalExecutionTime / totalProcesses << "\n";
 }
