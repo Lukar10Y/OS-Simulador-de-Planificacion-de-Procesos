@@ -3,8 +3,10 @@
 Simulator::Simulator() {
         actualTime = 0;
         runningProcess = nullptr;
-        //FCFS, SJF, NPP, RAND, SRTF, PP
-        algorithm = PP;
+        //FCFS, SJF, NPP, RAND, SRTF, PP, RR
+        algorithm = RR;
+        quantum = 2;
+        counter = 0;
 }
 
 Simulator::~Simulator() {
@@ -99,6 +101,8 @@ Process* Simulator::doAlgorithm() {
         case PP:    
             return doPP(readyList, runningProcess);
             break;
+        case RR:
+            return doRR(readyList, runningProcess, counter, quantum);
         default:
             break;
     }
@@ -119,7 +123,7 @@ void Simulator::run() {
 
 void Simulator::runTick() {
     std::cout << "[Tick] Time: " << actualTime << "\n";
-    if(runningProcess != nullptr){
+    if(runningProcess != nullptr) {
         std::cout << "  [Running Process] ID: " << runningProcess->id << "\n";
         --(runningProcess->remainingTimeCPU);
         if(runningProcess->remainingTimeCPU <= 0) {

@@ -8,7 +8,8 @@ enum AlgorithmType {
     NPP = 2,
     RAND = 3,
     SRTF = 4,
-    PP = 5
+    PP = 5,
+    RR = 6
 };
 
 struct Simulator {
@@ -22,6 +23,8 @@ struct Simulator {
     std::vector<Process*> backupList;
     Process* runningProcess;
     AlgorithmType algorithm;
+    int quantum;
+    int counter;
 
     Simulator();
     ~Simulator();
