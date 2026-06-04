@@ -34,9 +34,9 @@ void Simulator::addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int
 
 void Simulator::loadProcesses() {
     // ID, Arrival Time, CPU Burst Time, I/O Burst Time, Priority, cycles = 1
-    addProcess(1, 0, 10, 3, 6);
-    addProcess(2, 1, 2, 3, 2);
-    addProcess(3, 2, 2, 3, 3);
+    addProcess(1, 0, 10, 3, 6, 2);
+    addProcess(2, 1, 2, 3, 2, 2);
+    addProcess(3, 2, 2, 3, 3, 2);
     addProcess(4, 3, 2, 3, 5);
     addProcess(5, 4, 2, 3, 4);
 }
@@ -53,6 +53,10 @@ void Simulator::updateQueue(State state) {
             if(process->remainingTimeIO <= 0) {
                 process->state = READY;
                 process->remainingTimeCPU = process->initialTimeCPU;
+                if(process->remainingCycles > 1) {
+                    --(process->remainingCycles);
+                    process->remainingTimeIO = process->initialTimeIO;
+                }
                 readyList.push_back(process);
                 std::cout << "      [Process Unblocked] ID: " << process->id << "\n";
                 it = blockedList.erase(it);
