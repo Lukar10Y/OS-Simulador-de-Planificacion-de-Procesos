@@ -1,6 +1,6 @@
 #include "../include/process.h"
 
-Process::Process(int _id, int _arrivalTime, int _CPU, int _IO, int _priority) {
+Process::Process(int _id, int _arrivalTime, int _CPU, int _IO, int _priority, int _cycles) {
     id = _id;
     arrivalTime = _arrivalTime;
     priority = _priority;
@@ -8,9 +8,9 @@ Process::Process(int _id, int _arrivalTime, int _CPU, int _IO, int _priority) {
     initialTimeIO = remainingTimeIO = _IO;
     state = IDLE;
     waitingTime = 0;
-    blockedTime = 0;
     completionTime = 0;
-    totalTime = 0;
+    turnAroundTime = 0;
+    initialCycles = remainingCycles = _cycles;
 }
 
 std::string Process::getState() const {
@@ -30,5 +30,6 @@ void Process::print() const {
                 << " | CPU Burst: " << remainingTimeCPU 
                 << " | I/O Burst: " << remainingTimeIO 
                 << " | Priority: " << priority 
-                << " | State: " << getState() << "\n";
+                << " | State: " << getState() 
+                << " | Cycles: " << initialCycles << "\n";
 }

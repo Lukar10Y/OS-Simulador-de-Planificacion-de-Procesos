@@ -29,7 +29,7 @@ struct Simulator {
     Simulator();
     ~Simulator();
 
-    void addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int priority);
+    void addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int priority, int cycles = 1);
     void loadProcesses();
     //void loadRandomProcesses();
     void run();

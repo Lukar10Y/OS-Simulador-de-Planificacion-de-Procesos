@@ -25,15 +25,15 @@ Simulator::~Simulator() {
     std::cout << "[Simulator] Memoria liberada con exito. Todos los bloques devueltos al S.O.\n" << std::endl;
 }
 
-void Simulator::addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int priority) {
-    initialList.push_back(new Process(id, arrivalTime, timeCPU, timeIO, priority));
+void Simulator::addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int priority, int cycles) {
+    initialList.push_back(new Process(id, arrivalTime, timeCPU, timeIO, priority, cycles));
     backupList.push_back(initialList.back());
     std::cout << "[Process Added]\n";
     initialList.back()->print();
 }
 
 void Simulator::loadProcesses() {
-    // ID, Arrival Time, CPU Burst Time, I/O Burst Time, Priority
+    // ID, Arrival Time, CPU Burst Time, I/O Burst Time, Priority, cycles = 1
     addProcess(1, 0, 10, 3, 6);
     addProcess(2, 1, 2, 3, 2);
     addProcess(3, 2, 2, 3, 3);

@@ -26,13 +26,15 @@ struct Process {
 
     State state; 
 
+    int initialCycles;
+    int remainingCycles;
+
     // Métricas
     int waitingTime;      
-    int blockedTime;
     int completionTime;
-    int totalTime;
+    int turnAroundTime;
 
-    Process(int _id, int _arrivalTime, int _CPU, int _IO, int _priority);
+    Process(int _id, int _arrivalTime, int _CPU, int _IO, int _priority, int _cycles = 1);
 
     std::string getState() const;
     void print() const;
