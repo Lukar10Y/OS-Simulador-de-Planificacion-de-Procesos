@@ -1,6 +1,8 @@
 #pragma once
 
 #include "algorithms.h"
+#include <chrono>
+#include <thread>
 
 enum AlgorithmType {
     FCFS = 0,
@@ -23,10 +25,12 @@ struct Simulator {
     std::vector<Process*> backupList;
     Process* runningProcess;
     AlgorithmType algorithm;
-    
+
     int quantum;
     int counter;
     int idleTime;
+
+    double timer;
 
     Simulator();
     ~Simulator();

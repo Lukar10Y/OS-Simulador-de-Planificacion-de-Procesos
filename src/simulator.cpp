@@ -7,6 +7,7 @@ Simulator::Simulator() {
         algorithm = RR;
         quantum = 2;
         counter = 0;
+        timer = 1;
 }
 
 Simulator::~Simulator() {
@@ -120,6 +121,8 @@ void Simulator::run() {
     {
         runTick();
         ++actualTime;
+        std::chrono::duration<double> _t(timer);
+        std::this_thread::sleep_for(_t);
     }
     std::cout << "      [SIMULATION ENDED]\n";
     print();
