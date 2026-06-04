@@ -23,6 +23,7 @@ struct Simulator {
     std::vector<Process*> backupList;
     Process* runningProcess;
     AlgorithmType algorithm;
+    
     int quantum;
     int counter;
     int idleTime;

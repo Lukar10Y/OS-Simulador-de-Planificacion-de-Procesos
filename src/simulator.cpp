@@ -11,9 +11,9 @@ Simulator::Simulator() {
 
 Simulator::~Simulator() {
     std::cout << "\n[Simulator] Limpiando memoria dinamica del Heap..." << std::endl;
-    for (Process* proc : backupList) {
-        if (proc != nullptr) {
-            delete proc;
+    for (Process* process : backupList) {
+        if (process != nullptr) {
+            delete process;
         }
     }
     initialList.clear();
@@ -49,14 +49,12 @@ void Simulator::updateQueue(State state) {
     if(state == BLOCKED) {
         for(auto it = blockedList.begin(); it != blockedList.end(); ) {
             Process* process = *it;
-            --(process->remainingTimeIO);
-            ++(process->blockTime);
+            process->tickOnIOTime();
             if(process->remainingTimeIO <= 0) {
                 process->state = READY;
                 process->remainingTimeCPU = process->initialTimeCPU;
                 if(process->remainingCycles > 1) {
-                    --(process->remainingCycles);
-                    process->remainingTimeIO = process->initialTimeIO;
+                    process->tickOnCycles();
                 }
                 readyList.push_back(process);
                 std::cout << "      [Process Unblocked] ID: " << process->id << "\n";
@@ -132,11 +130,13 @@ void Simulator::run() {
 
 void Simulator::runTick() {
     std::cout << "[Tick] Time: " << actualTime << "\n";
+    for(Process* process : readyList) {
+        ++(process->waitingTime);
+    }
     updateQueue(BLOCKED);
     if(runningProcess != nullptr) {
         std::cout << "  [Running Process] ID: " << runningProcess->id << "\n";
-        --(runningProcess->remainingTimeCPU);
-        ++(runningProcess->executionTime);
+        runningProcess->tickOnCPUTime();
         if(runningProcess->remainingTimeCPU <= 0) {
             if(runningProcess->remainingTimeIO > 0) {
                 runningProcess->state = BLOCKED;
@@ -146,8 +146,7 @@ void Simulator::runTick() {
             }
             else {
                 runningProcess->state = TERMINATED;
-                runningProcess->completionTime = actualTime;
-                runningProcess->turnAroundTime = runningProcess->completionTime - runningProcess->arrivalTime;
+                runningProcess->tickOnCompletionTime(actualTime);
                 terminatedList.push_back(runningProcess);
                 std::cout << "          [Process Terminated] ID: " << runningProcess->id << "\n";
                 runningProcess = nullptr;
@@ -164,9 +163,6 @@ void Simulator::runTick() {
         runningProcess = selected;
         runningProcess->state = RUNNING;
         readyList.erase(std::remove(readyList.begin(), readyList.end(), selected), readyList.end());
-    }
-    for(Process* process : readyList) {
-        ++(process->waitingTime);
     }
     if(runningProcess != nullptr) {
         std::cout << "  [Process Running] ID: " << runningProcess->id << "\n";
@@ -197,7 +193,7 @@ void Simulator::calcFinalMetrics() {
     std::cout << "\n[Metrics]\n";
     for (const auto& process : terminatedList) {
         std::cout << "  Process ID: " << process->id 
-                  << " | Waiting Time: " << process->completionTime - process->arrivalTime - process->initialTimeCPU - process->initialTimeIO
+                  << " | Waiting Time: " << process->completionTime - process->arrivalTime - process->initialTimeCPU*(process->initialCycles+1) - process->initialTimeIO*process->initialCycles
                   << " | Turnaround Time: " << process->completionTime - process->arrivalTime 
                   << " | Completion Time: " << process->completionTime 
                   << " | Block Time: " << process->initialTimeIO * (process->initialCycles) 

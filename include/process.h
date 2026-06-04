@@ -39,5 +39,9 @@ struct Process {
     Process(int _id, int _arrivalTime, int _CPU, int _IO, int _priority, int _cycles = 1);
 
     std::string getState() const;
+    void tickOnCPUTime();
+    void tickOnIOTime();
+    void tickOnCycles();
+    void tickOnCompletionTime(const int& actualTime);
     void print() const;
 };

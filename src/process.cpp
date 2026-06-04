@@ -22,6 +22,26 @@ std::string Process::getState() const {
     }
 }
 
+void Process::tickOnCPUTime() {
+    --remainingTimeCPU;
+    ++executionTime;
+}
+
+void Process::tickOnIOTime() {
+    --remainingTimeIO;
+    ++blockTime;
+}
+
+void Process::tickOnCycles() {
+    --remainingCycles;
+    remainingTimeIO = initialTimeIO;
+}
+
+void Process::tickOnCompletionTime(const int& actualTime) {
+    completionTime = actualTime;
+    turnAroundTime = completionTime - arrivalTime;
+}
+
 void Process::print() const {
     std::cout << " [Process] ID: " << id 
                 << " | Arrival: " << arrivalTime 
