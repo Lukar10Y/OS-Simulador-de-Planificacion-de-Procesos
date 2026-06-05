@@ -58,20 +58,85 @@ void renderInterface(Simulator& simulador) {
     ImGui::NewFrame();
 
     // Panel de Control del Simulador
-    ImGui::Begin("Panel de Control");
+    static float time = 1;
+    static bool finish = false;
+
+    if(finish) simulador.runTick(time);
+    else
+    {
+        ImGui::Begin("Panel de Control");
     
-    ImGui::Text("Estado del Reloj del Sistema: %d ticks", simulador.actualTime); 
+        ImGui::Text("Estado del Reloj del Sistema: %d ticks", simulador.actualTime); 
     
-    if (ImGui::Button("Siguiente Paso (Tick)")) {
-        simulador.runTick();
-    }
+        ImGui::Text("Establecer duracion del Tick (seg)"); 
+        ImGui::SameLine();
+        if(ImGui::InputFloat("##", &time)) {
+            if(time<=0) time = 0.001;
+        };
     
-    ImGui::SameLine();
-    if (ImGui::Button("Resetear Simulador")) {
+        if (ImGui::Button("Siguiente Paso (Tick)")) {
+            simulador.runTick();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Simular todo")) {
+            finish = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Reset")) {
         //simulador.reiniciar();
-    }
+        }
+
+        ImGui::End();
+
+        static int arriveTime = 0;
+        static int timeCPU = 1;
+        static int timeIO = 0;
+        static int numCycles = 0;
+        static int priority = 1;
+
+        ImGui::Begin("Opciones de modelado");
     
-    ImGui::End();
+        ImGui::InputInt("Tiempo de Llegada", &arriveTime);
+        if (ImGui::InputInt("Tiempo de CPU", &timeCPU)) {
+            if(timeCPU<1) timeCPU = 1;
+        };
+        if (ImGui::InputInt("Tiempo de E/S", &timeIO)) {
+            if(timeIO<0) timeIO = 0;
+        };
+        if (ImGui::InputInt("Numero de ciclos", &numCycles)) {
+            if(numCycles<0) numCycles = 0;
+        };
+        if (ImGui::InputInt("Prioridad", &priority)) {
+            if(priority<1) priority = 1;
+        };
+
+        if (ImGui::Button("Reset")) {
+            arriveTime = 0;
+            timeCPU = 1;
+            timeIO = 0;
+            numCycles = 0;
+            priority = 1;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Random")) {
+            static std::random_device rd;
+            static std::mt19937 gen(rd());
+
+            std::uniform_int_distribution<> distArrive(0, 60);
+            std::uniform_int_distribution<> distCPU(1, 60);
+            std::uniform_int_distribution<> distIO(0, 60);
+            std::uniform_int_distribution<> distCycles(0, 5);
+            std::uniform_int_distribution<> distPriority(0, 60);
+
+            arriveTime = distArrive(gen);
+            timeCPU = distCPU(gen);
+            timeIO = distIO(gen);
+            numCycles = distCycles(gen);
+            priority = distPriority(gen);
+        }
+
+        ImGui::End();
+    }
 
     // Lista de procesos
     ImGui::Begin("Lista de Procesos");
@@ -97,54 +162,7 @@ void renderInterface(Simulator& simulador) {
     }
     ImGui::End();
 
-    static int arriveTime = 0;
-    static int timeCPU = 1;
-    static int timeIO = 0;
-    static int numCycles = 0;
-    static int priority = 1;
-
-    ImGui::Begin("Opciones de modelado");
-    
-    ImGui::InputInt("Tiempo de Llegada", &arriveTime);
-    if(ImGui::InputInt("Tiempo de CPU", &timeCPU)) {
-        if(timeCPU<1) timeCPU = 1;
-    };
-    if(ImGui::InputInt("Tiempo de E/S", &timeIO)) {
-        if(timeIO<0) timeIO = 0;
-    };
-    if(ImGui::InputInt("Numero de ciclos", &numCycles)) {
-        if(numCycles<0) numCycles = 0;
-    };
-    if(ImGui::InputInt("Prioridad", &priority)) {
-        if(priority<1) priority = 1;
-    };
-
-    if (ImGui::Button("Reset")) {
-        arriveTime = 0;
-        timeCPU = 1;
-        timeIO = 0;
-        numCycles = 0;
-        priority = 1;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Random")) {
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-
-        std::uniform_int_distribution<> distArrive(0, 60);
-        std::uniform_int_distribution<> distCPU(1, 60);
-        std::uniform_int_distribution<> distIO(0, 60);
-        std::uniform_int_distribution<> distCycles(0, 5);
-        std::uniform_int_distribution<> distPriority(0, 60);
-
-        arriveTime = distArrive(gen);
-        timeCPU = distCPU(gen);
-        timeIO = distIO(gen);
-        numCycles = distCycles(gen);
-        priority = distPriority(gen);
-    }
-    
-    ImGui::End();
+    if(simulador.checkExit()) finish = false; 
 
     ImGui::Render();
     int display_w, display_h;

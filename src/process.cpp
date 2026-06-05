@@ -6,7 +6,12 @@ Process::Process(int _id, int _arrivalTime, int _CPU, int _IO, int _priority, in
     priority = _priority;
     initialTimeCPU = remainingTimeCPU = _CPU;
     initialTimeIO = remainingTimeIO = _IO;
-    state = IDLE;
+    if(arrivalTime == 0) {
+        state = READY;
+    }
+    else {
+        state = IDLE;
+    }
     waitingTime = completionTime = turnAroundTime = blockTime = executionTime = 0;
     initialCycles = remainingCycles = _cycles;
 }

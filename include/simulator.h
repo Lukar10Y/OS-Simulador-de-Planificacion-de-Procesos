@@ -30,16 +30,15 @@ struct Simulator {
     int counter;
     int idleTime;
 
-    double timer;
-
     Simulator();
     ~Simulator();
 
     void addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int priority, int cycles = 1);
     void loadProcesses();
     //void loadRandomProcesses();
-    void run();
+    void run(const float& time);
     void runTick();
+    void runTick(const float& time);
     void getMetrics();
     void calcFinalMetrics();
     void getAverageMetrics();

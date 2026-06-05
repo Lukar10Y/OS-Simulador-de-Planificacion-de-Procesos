@@ -7,7 +7,6 @@ Simulator::Simulator() {
         algorithm = RR;
         quantum = 2;
         counter = 0;
-        timer = 1;
 }
 
 Simulator::~Simulator() {
@@ -114,13 +113,13 @@ Process* Simulator::doAlgorithm() {
     return nullptr; 
 }
 
-void Simulator::run() {
+void Simulator::run(const float& time) {
     std::cout << "      [RUNNING]\n";
     while(!checkExit())
     {
         runTick();
-        std::chrono::duration<double> _t(timer);
-        std::this_thread::sleep_for(_t);
+        std::chrono::duration<float> tick(time);
+        std::this_thread::sleep_for(tick);
     }
     std::cout << "      [SIMULATION ENDED]\n";
     print();
@@ -169,6 +168,50 @@ void Simulator::runTick() {
         ++idleTime;
     }
     ++actualTime;
+}
+
+void Simulator::runTick(const float& time) {
+    std::cout << "[Tick] Time: " << actualTime << "\n";
+    updateQueue(READY);
+    Process* selected = doAlgorithm();
+    if(selected != nullptr) {
+        if(runningProcess != nullptr) {
+            runningProcess->state = READY;
+            readyList.push_back(runningProcess);
+        }
+        runningProcess = selected;
+        runningProcess->state = RUNNING;
+        readyList.erase(std::remove(readyList.begin(), readyList.end(), selected), readyList.end());
+    }
+    for(Process* process : readyList) {
+        ++(process->waitingTime);
+    }
+    updateQueue(BLOCKED);
+    if(runningProcess != nullptr) {
+        std::cout << "  [Running Process] ID: " << runningProcess->id << "\n";
+        runningProcess->tickOnCPUTime();
+        if(runningProcess->remainingTimeCPU <= 0) {
+            if(runningProcess->remainingTimeIO > 0 && runningProcess->remainingCycles > 0) {
+                runningProcess->state = BLOCKED;
+                blockedList.push_back(runningProcess);
+                std::cout << "      [Process Blocked] ID: " << runningProcess->id << "\n";
+                runningProcess = nullptr;
+            }
+            else {
+                runningProcess->state = TERMINATED;
+                runningProcess->tickOnCompletionTime(actualTime);
+                terminatedList.push_back(runningProcess);
+                std::cout << "          [Process Terminated] ID: " << runningProcess->id << "\n";
+                runningProcess = nullptr;
+            }
+        }
+    }
+    else {
+        ++idleTime;
+    }
+    ++actualTime;
+    std::chrono::duration<float> tick(time);
+    std::this_thread::sleep_for(tick);
 }
 
 void Simulator::print() {
