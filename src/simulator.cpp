@@ -115,7 +115,6 @@ Process* Simulator::doAlgorithm() {
 }
 
 void Simulator::run() {
-    loadProcesses();
     std::cout << "      [RUNNING]\n";
     while(!checkExit())
     {
@@ -151,7 +150,7 @@ void Simulator::runTick() {
         std::cout << "  [Running Process] ID: " << runningProcess->id << "\n";
         runningProcess->tickOnCPUTime();
         if(runningProcess->remainingTimeCPU <= 0) {
-            if(runningProcess->remainingTimeIO > 0) {
+            if(runningProcess->remainingTimeIO > 0 && runningProcess->remainingCycles > 0) {
                 runningProcess->state = BLOCKED;
                 blockedList.push_back(runningProcess);
                 std::cout << "      [Process Blocked] ID: " << runningProcess->id << "\n";
