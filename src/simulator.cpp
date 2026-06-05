@@ -47,6 +47,10 @@ bool Simulator::checkExit() const {
     return initialList.empty() && readyList.empty() && blockedList.empty() && runningProcess == nullptr;
 }
 
+bool Simulator::isSimulating() const {
+    return actualTime > 0;
+}
+
 void Simulator::updateQueue(State state) {
     if(state == BLOCKED) {
         for(auto it = blockedList.begin(); it != blockedList.end(); ) {

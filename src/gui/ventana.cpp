@@ -60,18 +60,50 @@ void renderInterface(Simulator& simulador) {
     // Panel de Control del Simulador
     static float time = 1;
     static bool isAuto = false;
-    static bool isSimulating = false;
 
-    ImGui::Begin("Panel de Control");
-    ImGui::Text("Estado del Reloj del Sistema: %d ticks", simulador.actualTime); 
-    if(!isAuto && !isSimulating)
+    if(isAuto) simulador.runTick(time);
+
+    ImGui::Begin("Reloj");
+    ImGui::Text("Estado del Reloj del Sistema: %d ticks", simulador.actualTime);
+    ImGui::End();
+    
+    if(!isAuto && !simulador.isSimulating())
     {
+        ImGui::Begin("Panel de Control");
         ImGui::Text("Establecer duracion del Tick (seg)"); 
         ImGui::SameLine();
         if(ImGui::InputFloat("##", &time)) {
             if(time<=0) time = 0.001;
         };
+
+        static int algorithm = 0;
+        static int quantum = 1; 
+
+        ImGui::Text("Selecciona el Algoritmo de Planificación:");
+        ImGui::RadioButton("FCFS", &algorithm, 0);
+        ImGui::SameLine();
+        ImGui::RadioButton("SJF", &algorithm, 1);
+        ImGui::SameLine();
+        ImGui::RadioButton("NPP", &algorithm, 2);
+        ImGui::SameLine();
+        ImGui::RadioButton("RAND", &algorithm, 3);
+        ImGui::SameLine();
+        ImGui::RadioButton("SRTF", &algorithm, 4);
+        ImGui::SameLine();
+        ImGui::RadioButton("PP", &algorithm, 5);
+        ImGui::SameLine();
+        ImGui::RadioButton("RR", &algorithm, 6);
+        if(algorithm == 6) {
+            ImGui::Text("Ingrese el quantum a utilizar:");
+            if (ImGui::InputInt("##quantumInput", &quantum)) {
+                if(quantum<1) quantum = 1;
+            };
+        }
+        ImGui::End();
     }
+
+    //Simular
+    ImGui::Begin("Simular");
     if(!isAuto)
     {
         if (ImGui::Button("Siguiente Paso (Tick)")) {
@@ -95,8 +127,7 @@ void renderInterface(Simulator& simulador) {
     ImGui::End();
 
     // Opciones de editor
-    if(isAuto) simulador.runTick(time);
-    else if(!isSimulating)
+    if(!simulador.isSimulating())
     {
         static int arriveTime = 0;
         static int timeCPU = 1;
@@ -118,7 +149,7 @@ void renderInterface(Simulator& simulador) {
         if (ImGui::InputInt("Prioridad", &priority)) {
             if(priority<1) priority = 1;
         };
-        if (ImGui::Button("Crear")) {
+        if (ImGui::Button("Crear Proceso")) {
             simulador.addProcess(arriveTime,timeCPU,timeIO,priority,numCycles);
         }
         ImGui::SameLine();
@@ -147,30 +178,6 @@ void renderInterface(Simulator& simulador) {
             priority = distPriority(gen);
         }
         ImGui::End();
-
-        static int algorithm = 0;
-        static int quantum = 1; 
-
-        ImGui::Text("Selecciona el Algoritmo de Planificación:");
-        ImGui::RadioButton("FCFS", &algorithm, 0);
-        ImGui::SameLine();
-        ImGui::RadioButton("SJF", &algorithm, 1);
-        ImGui::SameLine();
-        ImGui::RadioButton("NPP", &algorithm, 2);
-        ImGui::SameLine();
-        ImGui::RadioButton("RAND", &algorithm, 3);
-        ImGui::SameLine();
-        ImGui::RadioButton("SRTF", &algorithm, 4);
-        ImGui::SameLine();
-        ImGui::RadioButton("PP", &algorithm, 5);
-        ImGui::SameLine();
-        ImGui::RadioButton("RR", &algorithm, 6);
-        if(algorithm == 6) {
-            ImGui::Text("Ingrese el quantum a utilizar:");
-            if (ImGui::InputInt("##", &quantum)) {
-                if(quantum<1) quantum = 1;
-            };
-        }
     }
 
     // Lista de procesos
@@ -195,18 +202,19 @@ void renderInterface(Simulator& simulador) {
             ImGui::TableSetColumnIndex(4); ImGui::Text("%d", process->priority);
             ImGui::TableSetColumnIndex(5); ImGui::Text("%s", process->getState().c_str());
             ImGui::TableSetColumnIndex(6); ImGui::Text("%d", process->remainingCycles);
-            ImGui::TableSetColumnIndex(7); ImGui::PushID(process->id); 
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.1f, 0.1f, 1.0f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.1f, 0.1f, 1.0f));
-    
-            if (ImGui::Button("Eliminar")) {
-                simulador.deleteInitialProcess(process->id);
+            if(!simulador.isSimulating()) {
+                ImGui::TableSetColumnIndex(7); ImGui::PushID(process->id); 
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.1f, 0.1f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.1f, 0.1f, 1.0f));
+                if (ImGui::Button("Eliminar")) {
+                    simulador.deleteInitialProcess(process->id);
+                    ImGui::PopStyleColor(2);
+                    ImGui::PopID();
+                    break;
+                }
                 ImGui::PopStyleColor(2);
                 ImGui::PopID();
-                break;
             }
-            ImGui::PopStyleColor(2);
-            ImGui::PopID();
         }
         ImGui::EndTable();
     }

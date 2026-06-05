@@ -47,6 +47,7 @@ struct Simulator {
     void deleteInitialProcess(const int& id);
 
     bool checkExit() const;
+    bool isSimulating() const;
     void updateQueue(State state);
     Process* doAlgorithm();
 };
