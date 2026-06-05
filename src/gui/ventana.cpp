@@ -220,6 +220,53 @@ void renderInterface(Simulator& simulador) {
     }
     ImGui::End();
 
+    ImGui::Begin("Cola de Listos");
+    if (ImGui::BeginTable("TablaListos", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+        ImGui::TableSetupColumn("ID");
+        ImGui::TableSetupColumn("Prioridad");
+        ImGui::TableHeadersRow();
+
+        for (const Process* process : simulador.readyList) {
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0); ImGui::Text("%d", process->id);
+            ImGui::TableSetColumnIndex(1); ImGui::Text("%d", process->priority);
+        }
+        ImGui::EndTable();
+    }
+    ImGui::End();
+
+    ImGui::Begin("Cola de Bloqueados");
+    if (ImGui::BeginTable("TablaBloqueados", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+        ImGui::TableSetupColumn("ID");
+        ImGui::TableSetupColumn("Rafaga IO restante");
+        ImGui::TableHeadersRow();
+
+        for (const Process* process : simulador.blockedList) {
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0); ImGui::Text("%d", process->id);
+            ImGui::TableSetColumnIndex(1); ImGui::Text("%d", process->remainingTimeIO);
+        }
+        ImGui::EndTable();
+    }
+    ImGui::End();
+
+    ImGui::Begin("Cola de Terminados");
+    if (ImGui::BeginTable("TablaTerminados", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+        ImGui::TableSetupColumn("ID");
+        ImGui::TableSetupColumn("Tiempo de llegada");
+        ImGui::TableSetupColumn("Tiempo final");
+        ImGui::TableHeadersRow();
+
+        for (const Process* process : simulador.terminatedList) {
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0); ImGui::Text("%d", process->id);
+            ImGui::TableSetColumnIndex(1); ImGui::Text("%d", process->arrivalTime);
+            ImGui::TableSetColumnIndex(2); ImGui::Text("%d", process->completionTime);
+        }
+        ImGui::EndTable();
+    }
+    ImGui::End();
+
     if(simulador.checkExit()) isAuto = false; 
 
     ImGui::Render();
