@@ -8,6 +8,7 @@ Simulator::Simulator() {
         quantum = 2;
         counterQuantum = 0;
         counterID = 1;
+        idleTime = 0;
 }
 
 Simulator::~Simulator() {
@@ -26,9 +27,24 @@ Simulator::~Simulator() {
     std::cout << "[Simulator] Memoria liberada con exito. Todos los bloques devueltos al S.O.\n" << std::endl;
 }
 
+std::vector<Process*> Simulator::getProcesses() {
+    std::vector<Process*> processes;
+    for (Process* p : initialList)    { processes.push_back(p); }
+    for (Process* p : readyList)      { processes.push_back(p); }
+    for (Process* p : blockedList)    { processes.push_back(p); }
+    for (Process* p : terminatedList) { processes.push_back(p); }
+    
+    if (runningProcess != nullptr) { processes.push_back(runningProcess); }
+
+    std::sort(processes.begin(), processes.end(), [](const Process* a, const Process* b) {
+        return a->id < b->id;
+    });
+    return processes;
+}
+
 void Simulator::addProcess(int arrivalTime, int timeCPU, int timeIO, int priority, int cycles) {
     initialList.push_back(new Process(counterID, arrivalTime, timeCPU, timeIO, priority, cycles));
-    backupList.push_back(initialList.back());
+    backupList.push_back(new Process(counterID, arrivalTime, timeCPU, timeIO, priority, cycles));
     std::cout << "[Process Added]\n";
     initialList.back()->print();
     ++counterID;
@@ -291,8 +307,15 @@ void Simulator::getAverageMetrics() {
 
 void Simulator::deleteInitialProcess(const int& id)
 {
-    Process* process = nullptr;
+    Process* backupProcess = nullptr;
     for (Process* p : backupList) {
+        if (p->id == id) {
+            backupProcess = p;
+            break;
+        }
+    }
+    Process* process = nullptr;
+    for (Process* p : initialList) {
         if (p->id == id) {
             process = p;
             break;
@@ -303,10 +326,39 @@ void Simulator::deleteInitialProcess(const int& id)
             std::remove(initialList.begin(), initialList.end(), process),
             initialList.end()
         );
-        backupList.erase(
-            std::remove(backupList.begin(), backupList.end(), process),
-            backupList.end()
-        );
         delete process;
     }
+    if (backupProcess != nullptr) {
+        backupList.erase(
+            std::remove(backupList.begin(), backupList.end(), backupProcess),
+            backupList.end()
+        );
+        delete backupProcess;
+    }
+}
+
+void Simulator::reset() {
+    actualTime = 0;
+
+    for (Process* p : initialList)    { delete p; }
+    for (Process* p : readyList)      { delete p; }
+    for (Process* p : blockedList)    { delete p; }
+    for (Process* p : terminatedList) { delete p; }
+
+    if (runningProcess != nullptr) {
+        delete runningProcess;
+        runningProcess = nullptr;
+    }
+
+    initialList.clear();
+    readyList.clear();
+    blockedList.clear();
+    terminatedList.clear();
+
+    for (const Process* p : backupList) {
+        Process* backup = new Process(*p); 
+        initialList.push_back(backup);
+    }
+
+    counterQuantum = idleTime = 0;
 }

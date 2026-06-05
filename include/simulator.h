@@ -36,7 +36,6 @@ struct Simulator {
 
     void addProcess(int arrivalTime, int timeCPU, int timeIO, int priority, int cycles = 1);
     void loadProcesses();
-    //void loadRandomProcesses();
     void run(const float& time);
     void runTick();
     void runTick(const float& time);
@@ -44,7 +43,9 @@ struct Simulator {
     void calcFinalMetrics();
     void getAverageMetrics();
     void print();
+    std::vector<Process*> getProcesses();
     void deleteInitialProcess(const int& id);
+    void reset();
 
     bool checkExit() const;
     bool isSimulating() const;

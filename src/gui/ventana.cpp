@@ -115,7 +115,7 @@ void renderInterface(Simulator& simulador) {
         }
         ImGui::SameLine();
         if (ImGui::Button("Reset")) {
-            //simulador.reiniciar();
+            simulador.reset();
         }
     }
     else
@@ -193,7 +193,7 @@ void renderInterface(Simulator& simulador) {
         ImGui::TableSetupColumn("##");
         ImGui::TableHeadersRow();
 
-        for (const Process* process : simulador.backupList) {
+        for (const Process* process : simulador.getProcesses()) {
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0); ImGui::Text("%d", process->id);
             ImGui::TableSetColumnIndex(1); ImGui::Text("%d", process->arrivalTime);
