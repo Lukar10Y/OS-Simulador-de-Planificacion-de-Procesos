@@ -120,7 +120,6 @@ void Simulator::run() {
     while(!checkExit())
     {
         runTick();
-        ++actualTime;
         std::chrono::duration<double> _t(timer);
         std::this_thread::sleep_for(_t);
     }
@@ -170,6 +169,7 @@ void Simulator::runTick() {
     else {
         ++idleTime;
     }
+    ++actualTime;
 }
 
 void Simulator::print() {

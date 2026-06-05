@@ -1,15 +1,37 @@
-# Compilados y Ejecutables
+# ==========================================
+# Compilados, Objetos y Ejecutables
+# ==========================================
 *.exe
 *.o
 *.obj
 *.out
+*.a
+*.lib
+obj/
 
+# ==========================================
+# Archivos específicos de la Interfaz (ImGui)
+# ==========================================
+imgui.ini
+
+# ==========================================
+# Residuos de pruebas con CMake
+# ==========================================
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# ==========================================
 # Carpetas de configuración de VS Code y editores
+# ==========================================
 .vscode/
 .idea/
 *.suo
 *.user
+*.workspace
 
+# ==========================================
 # Archivos temporales del sistema
+# ==========================================
 Thumbs.db
 .DS_Store
