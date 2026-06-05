@@ -27,13 +27,14 @@ struct Simulator {
     AlgorithmType algorithm;
 
     int quantum;
-    int counter;
+    int counterQuantum;
+    int counterID;
     int idleTime;
 
     Simulator();
     ~Simulator();
 
-    void addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int priority, int cycles = 1);
+    void addProcess(int arrivalTime, int timeCPU, int timeIO, int priority, int cycles = 1);
     void loadProcesses();
     //void loadRandomProcesses();
     void run(const float& time);
@@ -43,6 +44,7 @@ struct Simulator {
     void calcFinalMetrics();
     void getAverageMetrics();
     void print();
+    void deleteInitialProcess(const int& id);
 
     bool checkExit() const;
     void updateQueue(State state);

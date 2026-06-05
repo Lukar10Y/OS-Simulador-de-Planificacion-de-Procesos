@@ -59,35 +59,45 @@ void renderInterface(Simulator& simulador) {
 
     // Panel de Control del Simulador
     static float time = 1;
-    static bool finish = false;
+    static bool isAuto = false;
+    static bool isSimulating = false;
 
-    if(finish) simulador.runTick(time);
-    else
+    ImGui::Begin("Panel de Control");
+    ImGui::Text("Estado del Reloj del Sistema: %d ticks", simulador.actualTime); 
+    if(!isAuto && !isSimulating)
     {
-        ImGui::Begin("Panel de Control");
-    
-        ImGui::Text("Estado del Reloj del Sistema: %d ticks", simulador.actualTime); 
-    
         ImGui::Text("Establecer duracion del Tick (seg)"); 
         ImGui::SameLine();
         if(ImGui::InputFloat("##", &time)) {
             if(time<=0) time = 0.001;
         };
-    
+    }
+    if(!isAuto)
+    {
         if (ImGui::Button("Siguiente Paso (Tick)")) {
             simulador.runTick();
         }
         ImGui::SameLine();
         if (ImGui::Button("Simular todo")) {
-            finish = true;
+            isAuto = true;
         }
         ImGui::SameLine();
         if (ImGui::Button("Reset")) {
-        //simulador.reiniciar();
+            //simulador.reiniciar();
         }
+    }
+    else
+    {
+        if (ImGui::Button("Stop (Dejar de Simular)")) {
+            isAuto = false;
+        }
+    }
+    ImGui::End();
 
-        ImGui::End();
-
+    // Opciones de editor
+    if(isAuto) simulador.runTick(time);
+    else if(!isSimulating)
+    {
         static int arriveTime = 0;
         static int timeCPU = 1;
         static int timeIO = 0;
@@ -95,7 +105,6 @@ void renderInterface(Simulator& simulador) {
         static int priority = 1;
 
         ImGui::Begin("Opciones de modelado");
-    
         ImGui::InputInt("Tiempo de Llegada", &arriveTime);
         if (ImGui::InputInt("Tiempo de CPU", &timeCPU)) {
             if(timeCPU<1) timeCPU = 1;
@@ -109,7 +118,10 @@ void renderInterface(Simulator& simulador) {
         if (ImGui::InputInt("Prioridad", &priority)) {
             if(priority<1) priority = 1;
         };
-
+        if (ImGui::Button("Crear")) {
+            simulador.addProcess(arriveTime,timeCPU,timeIO,priority,numCycles);
+        }
+        ImGui::SameLine();
         if (ImGui::Button("Reset")) {
             arriveTime = 0;
             timeCPU = 1;
@@ -134,19 +146,44 @@ void renderInterface(Simulator& simulador) {
             numCycles = distCycles(gen);
             priority = distPriority(gen);
         }
-
         ImGui::End();
+
+        static int algorithm = 0;
+        static int quantum = 1; 
+
+        ImGui::Text("Selecciona el Algoritmo de Planificación:");
+        ImGui::RadioButton("FCFS", &algorithm, 0);
+        ImGui::SameLine();
+        ImGui::RadioButton("SJF", &algorithm, 1);
+        ImGui::SameLine();
+        ImGui::RadioButton("NPP", &algorithm, 2);
+        ImGui::SameLine();
+        ImGui::RadioButton("RAND", &algorithm, 3);
+        ImGui::SameLine();
+        ImGui::RadioButton("SRTF", &algorithm, 4);
+        ImGui::SameLine();
+        ImGui::RadioButton("PP", &algorithm, 5);
+        ImGui::SameLine();
+        ImGui::RadioButton("RR", &algorithm, 6);
+        if(algorithm == 6) {
+            ImGui::Text("Ingrese el quantum a utilizar:");
+            if (ImGui::InputInt("##", &quantum)) {
+                if(quantum<1) quantum = 1;
+            };
+        }
     }
 
     // Lista de procesos
     ImGui::Begin("Lista de Procesos");
-    if (ImGui::BeginTable("TablaProcesos", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+    if (ImGui::BeginTable("TablaProcesos", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
         ImGui::TableSetupColumn("ID");
-        ImGui::TableSetupColumn("T. Llegada");
+        ImGui::TableSetupColumn("Tiempo de Llegada");
         ImGui::TableSetupColumn("Ráfaga CPU restante");
         ImGui::TableSetupColumn("Ráfaga IO restante");
         ImGui::TableSetupColumn("Prioridad");
         ImGui::TableSetupColumn("Estado");
+        ImGui::TableSetupColumn("Numero de Ciclos");
+        ImGui::TableSetupColumn("##");
         ImGui::TableHeadersRow();
 
         for (const Process* process : simulador.backupList) {
@@ -157,12 +194,25 @@ void renderInterface(Simulator& simulador) {
             ImGui::TableSetColumnIndex(3); ImGui::Text("%d", process->remainingTimeIO);
             ImGui::TableSetColumnIndex(4); ImGui::Text("%d", process->priority);
             ImGui::TableSetColumnIndex(5); ImGui::Text("%s", process->getState().c_str());
+            ImGui::TableSetColumnIndex(6); ImGui::Text("%d", process->remainingCycles);
+            ImGui::TableSetColumnIndex(7); ImGui::PushID(process->id); 
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.1f, 0.1f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.1f, 0.1f, 1.0f));
+    
+            if (ImGui::Button("Eliminar")) {
+                simulador.deleteInitialProcess(process->id);
+                ImGui::PopStyleColor(2);
+                ImGui::PopID();
+                break;
+            }
+            ImGui::PopStyleColor(2);
+            ImGui::PopID();
         }
         ImGui::EndTable();
     }
     ImGui::End();
 
-    if(simulador.checkExit()) finish = false; 
+    if(simulador.checkExit()) isAuto = false; 
 
     ImGui::Render();
     int display_w, display_h;

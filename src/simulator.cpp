@@ -6,7 +6,8 @@ Simulator::Simulator() {
         //FCFS, SJF, NPP, RAND, SRTF, PP, RR
         algorithm = RR;
         quantum = 2;
-        counter = 0;
+        counterQuantum = 0;
+        counterID = 1;
 }
 
 Simulator::~Simulator() {
@@ -25,20 +26,21 @@ Simulator::~Simulator() {
     std::cout << "[Simulator] Memoria liberada con exito. Todos los bloques devueltos al S.O.\n" << std::endl;
 }
 
-void Simulator::addProcess(int id, int arrivalTime, int timeCPU, int timeIO, int priority, int cycles) {
-    initialList.push_back(new Process(id, arrivalTime, timeCPU, timeIO, priority, cycles));
+void Simulator::addProcess(int arrivalTime, int timeCPU, int timeIO, int priority, int cycles) {
+    initialList.push_back(new Process(counterID, arrivalTime, timeCPU, timeIO, priority, cycles));
     backupList.push_back(initialList.back());
     std::cout << "[Process Added]\n";
     initialList.back()->print();
+    ++counterID;
 }
 
 void Simulator::loadProcesses() {
     // ID, Arrival Time, CPU Burst Time, I/O Burst Time, Priority, cycles = 1
-    addProcess(1, 0, 5, 3, 6, 2);
-    addProcess(2, 1, 2, 3, 2, 2);
-    addProcess(3, 2, 2, 3, 3, 2);
-    addProcess(4, 3, 2, 3, 5);
-    addProcess(5, 4, 2, 3, 4);
+    addProcess(0, 5, 3, 6, 2);
+    addProcess(1, 2, 3, 2, 2);
+    addProcess(2, 2, 3, 3, 2);
+    addProcess(3, 2, 3, 5);
+    addProcess(4, 2, 3, 4);
 }
 
 bool Simulator::checkExit() const {
@@ -106,7 +108,7 @@ Process* Simulator::doAlgorithm() {
             return doPP(readyList, runningProcess);
             break;
         case RR:
-            return doRR(readyList, runningProcess, counter, quantum);
+            return doRR(readyList, runningProcess, counterQuantum, quantum);
         default:
             break;
     }
@@ -281,4 +283,26 @@ void Simulator::getAverageMetrics() {
     std::cout << "  Average Turnaround Time: " << totalTurnAroundTime / totalProcesses << "\n";
     std::cout << "  Average Block Time: " << totalBlockTime / totalProcesses << "\n";
     std::cout << "  Average Execution Time: " << totalExecutionTime / totalProcesses << "\n";
+}
+
+void Simulator::deleteInitialProcess(const int& id)
+{
+    Process* process = nullptr;
+    for (Process* p : backupList) {
+        if (p->id == id) {
+            process = p;
+            break;
+        }
+    }
+    if (process != nullptr) {
+        initialList.erase(
+            std::remove(initialList.begin(), initialList.end(), process),
+            initialList.end()
+        );
+        backupList.erase(
+            std::remove(backupList.begin(), backupList.end(), process),
+            backupList.end()
+        );
+        delete process;
+    }
 }
