@@ -4,7 +4,7 @@ Simulator::Simulator() {
         actualTime = 0;
         runningProcess = nullptr;
         //FCFS, SJF, NPP, RAND, SRTF, PP, RR
-        algorithm = RR;
+        algorithm = FCFS;
         quantum = 2;
         counterQuantum = 0;
         counterID = 1;

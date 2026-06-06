@@ -80,23 +80,38 @@ void renderInterface(Simulator& simulador) {
         static int quantum = 1; 
 
         ImGui::Text("Selecciona el Algoritmo de Planificación:");
-        ImGui::RadioButton("FCFS", &algorithm, 0);
+        if(ImGui::RadioButton("FCFS", &algorithm, 0)) {
+            simulador.algorithm = FCFS;
+        };
         ImGui::SameLine();
-        ImGui::RadioButton("SJF", &algorithm, 1);
+        if(ImGui::RadioButton("SJF", &algorithm, 1)) {
+            simulador.algorithm = SJF;
+        };
         ImGui::SameLine();
-        ImGui::RadioButton("NPP", &algorithm, 2);
+        if(ImGui::RadioButton("NPP", &algorithm, 2)) {
+            simulador.algorithm = NPP;
+        };
         ImGui::SameLine();
-        ImGui::RadioButton("RAND", &algorithm, 3);
+        if(ImGui::RadioButton("RAND", &algorithm, 3)) {
+            simulador.algorithm = RAND;
+        };
         ImGui::SameLine();
-        ImGui::RadioButton("SRTF", &algorithm, 4);
+        if(ImGui::RadioButton("SRTF", &algorithm, 4)) {
+            simulador.algorithm = SRTF;
+        };
         ImGui::SameLine();
-        ImGui::RadioButton("PP", &algorithm, 5);
+        if(ImGui::RadioButton("PP", &algorithm, 5)) {
+            simulador.algorithm = PP;
+        };
         ImGui::SameLine();
-        ImGui::RadioButton("RR", &algorithm, 6);
+        if(ImGui::RadioButton("RR", &algorithm, 6)) {
+            simulador.algorithm = RR;
+        };
         if(algorithm == 6) {
             ImGui::Text("Ingrese el quantum a utilizar:");
             if (ImGui::InputInt("##quantumInput", &quantum)) {
                 if(quantum<1) quantum = 1;
+                simulador.quantum = quantum;
             };
         }
         ImGui::End();
