@@ -13,6 +13,11 @@ Simulator::Simulator() {
 
 Simulator::~Simulator() {
     std::cout << "\n[Simulator] Limpiando memoria dinamica del Heap..." << std::endl;
+    for (Process* process : initialList) {
+        if (process != nullptr) {
+            delete process;
+        }
+    }
     for (Process* process : backupList) {
         if (process != nullptr) {
             delete process;
