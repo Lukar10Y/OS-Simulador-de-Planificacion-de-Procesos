@@ -1,3 +1,11 @@
+/******************************************************************************
+ * @file main.cpp
+ * @brief Punto de entrada del Simulador de Planificación de Procesos (OS)
+ * @author Francisco Ochoa (C.I: 30.189.260)
+ * @date Junio 2026
+ * @note Proyecto académico de Sistemas Operativos - Interfaz con ImGui/GLFW
+ *****************************************************************************/
+
 #include "simulator.h"
 #include "gui.h"
 
