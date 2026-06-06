@@ -59,6 +59,7 @@ struct Simulator {
     void print();
     
     //
+    void subsActualProcess(Process* process);
     void deleteInitialProcess(const int& id);
     void reset();
 
@@ -69,6 +70,9 @@ struct Simulator {
     void updateQueueInConsole(State state);
     // Actualizar cola del estado indicado
     void updateQueue(State state);
+
+    // Segun el algoritmo indicado en algorithm, va a buscar en readyList cualquier
+    // proceso que cumpla con los requerimientos y pueda montarse de inmediato en el CPU
     Process* doAlgorithm();
 
     // Getters

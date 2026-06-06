@@ -178,18 +178,22 @@ void Simulator::runInConsole(const float& time) {
     getFinalAverageMetrics();
 }
 
+void Simulator::subsActualProcess(Process* process) {
+    if(runningProcess != nullptr) {
+            runningProcess->state = READY;
+            readyList.push_back(runningProcess);
+    }
+    runningProcess = process;
+    runningProcess->state = RUNNING;
+    readyList.erase(std::remove(readyList.begin(), readyList.end(), process), readyList.end());
+}
+
 void Simulator::runTickInConsole(const float& time) {
     std::cout << "[Tick] Time: " << actualTime << "\n";
     updateQueueInConsole(READY);
     Process* selected = doAlgorithm();
     if(selected != nullptr) {
-        if(runningProcess != nullptr) {
-            runningProcess->state = READY;
-            readyList.push_back(runningProcess);
-        }
-        runningProcess = selected;
-        runningProcess->state = RUNNING;
-        readyList.erase(std::remove(readyList.begin(), readyList.end(), selected), readyList.end());
+        subsActualProcess(selected);
     }
     for(Process* process : readyList) {
         ++(process->waitingTime);
@@ -226,13 +230,7 @@ void Simulator::runTick(const float& time) {
     updateQueue(READY);
     Process* selected = doAlgorithm();
     if(selected != nullptr) {
-        if(runningProcess != nullptr) {
-            runningProcess->state = READY;
-            readyList.push_back(runningProcess);
-        }
-        runningProcess = selected;
-        runningProcess->state = RUNNING;
-        readyList.erase(std::remove(readyList.begin(), readyList.end(), selected), readyList.end());
+        subsActualProcess(selected);
     }
     for(Process* process : readyList) {
         ++(process->waitingTime);

@@ -122,7 +122,7 @@ void renderInterface(Simulator& simulador) {
     if(!isAuto)
     {
         if (ImGui::Button("Siguiente Paso (Tick)")) {
-            simulador.runTick();
+            simulador.runTick(0);
         }
         ImGui::SameLine();
         if (ImGui::Button("Simular todo")) {
