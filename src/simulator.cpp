@@ -23,6 +23,21 @@ Simulator::~Simulator() {
             delete process;
         }
     }
+    for (Process* process : readyList) {
+        if (process != nullptr) {
+            delete process;
+        }
+    }
+    for (Process* process : blockedList) {
+        if (process != nullptr) {
+            delete process;
+        }
+    }
+    for (Process* process : terminatedList) {
+        if (process != nullptr) {
+            delete process;
+        }
+    }
     initialList.clear();
     readyList.clear();
     blockedList.clear();
