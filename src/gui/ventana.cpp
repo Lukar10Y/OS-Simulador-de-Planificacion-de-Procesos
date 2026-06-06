@@ -73,7 +73,7 @@ void renderInterface(Simulator& simulador) {
         ImGui::Text("Establecer duracion del Tick (seg)"); 
         ImGui::SameLine();
         if(ImGui::InputFloat("##", &time)) {
-            if(time<=0) time = 0.001;
+            if(time<0) time = 0;
         };
 
         static int algorithm = 0;

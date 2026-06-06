@@ -45,8 +45,6 @@ std::vector<Process*> Simulator::getProcesses() {
 void Simulator::addProcess(int arrivalTime, int timeCPU, int timeIO, int priority, int cycles) {
     initialList.push_back(new Process(counterID, arrivalTime, timeCPU, timeIO, priority, cycles));
     backupList.push_back(new Process(counterID, arrivalTime, timeCPU, timeIO, priority, cycles));
-    std::cout << "[Process Added]\n";
-    //initialList.back()->print();
     ++counterID;
 }
 
@@ -67,7 +65,7 @@ bool Simulator::isSimulating() const {
     return actualTime > 0;
 }
 
-void Simulator::updateQueue(State state) {
+void Simulator::updateQueueInConsole(State state) {
     if(state == BLOCKED) {
         for(auto it = blockedList.begin(); it != blockedList.end(); ) {
             Process* process = *it;
@@ -93,6 +91,38 @@ void Simulator::updateQueue(State state) {
                 process->state = READY;
                 readyList.push_back(process);
                 std::cout << "  [Process Arrived] ID: " << process->id << "\n";
+                it = initialList.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+}
+
+void Simulator::updateQueue(State state) {
+    if(state == BLOCKED) {
+        for(auto it = blockedList.begin(); it != blockedList.end(); ) {
+            Process* process = *it;
+            process->tickOnIOTime();
+            if(process->remainingTimeIO <= 0) {
+                process->state = READY;
+                process->remainingTimeCPU = process->initialTimeCPU;
+                if(process->remainingCycles > 1) {
+                    process->tickOnCycles();
+                }
+                readyList.push_back(process);
+                it = blockedList.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+    else if(state == READY) {
+        for(auto it = initialList.begin(); it != initialList.end(); ) {
+            Process* process = *it;
+            if(process->arrivalTime == actualTime) {
+                process->state = READY;
+                readyList.push_back(process);
                 it = initialList.erase(it);
             } else {
                 ++it;
@@ -135,26 +165,11 @@ Process* Simulator::doAlgorithm() {
     return nullptr; 
 }
 
-void Simulator::runInConsole() {
-    std::cout << "      [RUNNING]\n";
-    while(!checkExit())
-    {
-        runTick();
-    }
-    std::cout << "      [SIMULATION ENDED]\n";
-    print();
-    getFinalMetrics();
-    calcFinalMetrics();
-    getFinalAverageMetrics();
-}
-
 void Simulator::runInConsole(const float& time) {
     std::cout << "      [RUNNING]\n";
     while(!checkExit())
     {
-        runTick();
-        std::chrono::duration<float> tick(time);
-        std::this_thread::sleep_for(tick);
+        runTickInConsole(time);
     }
     std::cout << "      [SIMULATION ENDED]\n";
     print();
@@ -163,9 +178,9 @@ void Simulator::runInConsole(const float& time) {
     getFinalAverageMetrics();
 }
 
-void Simulator::runTick() {
+void Simulator::runTickInConsole(const float& time) {
     std::cout << "[Tick] Time: " << actualTime << "\n";
-    updateQueue(READY);
+    updateQueueInConsole(READY);
     Process* selected = doAlgorithm();
     if(selected != nullptr) {
         if(runningProcess != nullptr) {
@@ -179,7 +194,7 @@ void Simulator::runTick() {
     for(Process* process : readyList) {
         ++(process->waitingTime);
     }
-    updateQueue(BLOCKED);
+    updateQueueInConsole(BLOCKED);
     if(runningProcess != nullptr) {
         std::cout << "  [Running Process] ID: " << runningProcess->id << "\n";
         runningProcess->tickOnCPUTime();
@@ -203,10 +218,11 @@ void Simulator::runTick() {
         ++idleTime;
     }
     ++actualTime;
+    std::chrono::duration<float> tick(time);
+    std::this_thread::sleep_for(tick);
 }
 
 void Simulator::runTick(const float& time) {
-    std::cout << "[Tick] Time: " << actualTime << "\n";
     updateQueue(READY);
     Process* selected = doAlgorithm();
     if(selected != nullptr) {
@@ -223,20 +239,17 @@ void Simulator::runTick(const float& time) {
     }
     updateQueue(BLOCKED);
     if(runningProcess != nullptr) {
-        std::cout << "  [Running Process] ID: " << runningProcess->id << "\n";
         runningProcess->tickOnCPUTime();
         if(runningProcess->remainingTimeCPU <= 0) {
             if(runningProcess->remainingTimeIO > 0 && runningProcess->remainingCycles > 0) {
                 runningProcess->state = BLOCKED;
                 blockedList.push_back(runningProcess);
-                std::cout << "      [Process Blocked] ID: " << runningProcess->id << "\n";
                 runningProcess = nullptr;
             }
             else {
                 runningProcess->state = TERMINATED;
                 runningProcess->tickOnCompletionTime(actualTime);
                 terminatedList.push_back(runningProcess);
-                std::cout << "          [Process Terminated] ID: " << runningProcess->id << "\n";
                 runningProcess = nullptr;
             }
         }

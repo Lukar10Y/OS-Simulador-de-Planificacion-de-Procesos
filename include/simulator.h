@@ -43,12 +43,10 @@ struct Simulator {
     void addProcess(int arrivalTime, int timeCPU, int timeIO, int priority, int cycles = 1);
     void loadProcesses();
 
-    // Realizar simulacion completa imprimiendo por consola SIN timer
-    void runInConsole();
-     // Realizar simulacion completa imprimiendo por consola CON timer
+    // Realizar simulacion completa imprimiendo por consola
     void runInConsole(const float& time);
-    
-    void runTick();
+    void runTickInConsole(const float& time);
+
     void runTick(const float& time);
 
     // Metricas tomando como referencia la terminatedList
@@ -66,6 +64,10 @@ struct Simulator {
 
     bool checkExit() const;
     bool isSimulating() const;
+
+    // Actualizar cola del estado indicado mostrando mensajes por consola
+    void updateQueueInConsole(State state);
+    // Actualizar cola del estado indicado
     void updateQueue(State state);
     Process* doAlgorithm();
 
