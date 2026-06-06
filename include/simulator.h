@@ -15,20 +15,26 @@ enum AlgorithmType {
 };
 
 struct Simulator {
+    //Reloj
     int actualTime;
 
     // Colas
+
     std::vector<Process*> initialList;
     std::vector<Process*> readyList;
     std::vector<Process*> blockedList;
     std::vector<Process*> terminatedList;
     std::vector<Process*> backupList;
+    // Proceso actual que esta usando el CPU
     Process* runningProcess;
+    // Algoritmo a utilizar
     AlgorithmType algorithm;
 
     int quantum;
     int counterQuantum;
     int counterID;
+
+    // Ticks de ocio
     int idleTime;
 
     Simulator();
@@ -36,14 +42,25 @@ struct Simulator {
 
     void addProcess(int arrivalTime, int timeCPU, int timeIO, int priority, int cycles = 1);
     void loadProcesses();
-    void run(const float& time);
+
+    // Realizar simulacion completa imprimiendo por consola SIN timer
+    void runInConsole();
+     // Realizar simulacion completa imprimiendo por consola CON timer
+    void runInConsole(const float& time);
+    
     void runTick();
     void runTick(const float& time);
-    void getMetrics();
+
+    // Metricas tomando como referencia la terminatedList
+
+    void getFinalMetrics();
     void calcFinalMetrics();
-    void getAverageMetrics();
+    void getFinalAverageMetrics();
+
+    //  Imprimir colas segun el tick actual
     void print();
-    std::vector<Process*> getProcesses();
+    
+    //
     void deleteInitialProcess(const int& id);
     void reset();
 
@@ -51,4 +68,11 @@ struct Simulator {
     bool isSimulating() const;
     void updateQueue(State state);
     Process* doAlgorithm();
+
+    // Getters
+
+    std::vector<Process*> getProcesses();
+
+    // Setters
+
 };

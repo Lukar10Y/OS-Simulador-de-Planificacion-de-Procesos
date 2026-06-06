@@ -46,7 +46,7 @@ void Simulator::addProcess(int arrivalTime, int timeCPU, int timeIO, int priorit
     initialList.push_back(new Process(counterID, arrivalTime, timeCPU, timeIO, priority, cycles));
     backupList.push_back(new Process(counterID, arrivalTime, timeCPU, timeIO, priority, cycles));
     std::cout << "[Process Added]\n";
-    initialList.back()->print();
+    //initialList.back()->print();
     ++counterID;
 }
 
@@ -135,7 +135,20 @@ Process* Simulator::doAlgorithm() {
     return nullptr; 
 }
 
-void Simulator::run(const float& time) {
+void Simulator::runInConsole() {
+    std::cout << "      [RUNNING]\n";
+    while(!checkExit())
+    {
+        runTick();
+    }
+    std::cout << "      [SIMULATION ENDED]\n";
+    print();
+    getFinalMetrics();
+    calcFinalMetrics();
+    getFinalAverageMetrics();
+}
+
+void Simulator::runInConsole(const float& time) {
     std::cout << "      [RUNNING]\n";
     while(!checkExit())
     {
@@ -145,9 +158,9 @@ void Simulator::run(const float& time) {
     }
     std::cout << "      [SIMULATION ENDED]\n";
     print();
-    getMetrics();
+    getFinalMetrics();
     calcFinalMetrics();
-    getAverageMetrics();
+    getFinalAverageMetrics();
 }
 
 void Simulator::runTick() {
@@ -265,7 +278,7 @@ void Simulator::calcFinalMetrics() {
     }
 }
 
-void Simulator::getMetrics() {
+void Simulator::getFinalMetrics() {
         std::cout << "\n[Metrics]\n";
         for (const auto& process : terminatedList) {
             std::cout << "  Process ID: " << process->id 
@@ -277,7 +290,7 @@ void Simulator::getMetrics() {
         }
 }
 
-void Simulator::getAverageMetrics() {
+void Simulator::getFinalAverageMetrics() {
     int totalProcesses = terminatedList.size();
     if (totalProcesses == 0) {
         std::cout << "\n[Average Metrics] No processes were terminated.\n";
