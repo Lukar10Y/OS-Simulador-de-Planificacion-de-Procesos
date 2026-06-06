@@ -19,6 +19,7 @@ bool runInterface() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     // 2. Crear la ventana del sistema
     window = glfwCreateWindow(1280, 720, "Simulador de Planificación de Procesos", nullptr, nullptr);
@@ -32,6 +33,7 @@ bool runInterface() {
     // 3. Inicializar el Contexto de Dear ImGui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImGui::GetIO().IniFilename = nullptr;
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Habilitar navegación por teclado
 
@@ -50,6 +52,9 @@ bool isClosing() {
 
 void renderInterface(Simulator& simulador) {
     // Escuchar eventos del sistema (mouse, teclado, cambiar tamaño de ventana)
+    constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoMove | 
+                                             ImGuiWindowFlags_NoResize | 
+                                             ImGuiWindowFlags_NoCollapse;
     glfwPollEvents();
 
     // Iniciar el nuevo frame de ImGui
@@ -63,13 +68,17 @@ void renderInterface(Simulator& simulador) {
 
     if(isAuto) simulador.runTick(time);
 
-    ImGui::Begin("Reloj");
+    ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(437.0f, 48.0f), ImGuiCond_Always);
+    ImGui::Begin("Reloj", nullptr, windowFlags);
     ImGui::Text("Estado del Reloj del Sistema: %d ticks", simulador.actualTime);
     ImGui::End();
     
     if(!simulador.isSimulating())
     {
-        ImGui::Begin("Panel de Control");
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 48.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(437.0f, 137.0f), ImGuiCond_Always);
+        ImGui::Begin("Panel de Control", nullptr, windowFlags);
         ImGui::Text("Establecer duracion del Tick (seg)"); 
         ImGui::SameLine();
         if(ImGui::InputFloat("##", &time)) {
@@ -118,7 +127,9 @@ void renderInterface(Simulator& simulador) {
     }
 
     //Simular
-    ImGui::Begin("Simular");
+    ImGui::SetNextWindowPos(ImVec2(0.0f, 184.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(438.0f, 54.0f), ImGuiCond_Always);
+    ImGui::Begin("Simular", nullptr, windowFlags);
     if(!isAuto)
     {
         if (ImGui::Button("Siguiente Paso (Tick)")) {
@@ -149,7 +160,9 @@ void renderInterface(Simulator& simulador) {
         static int numCycles = 0;
         static int priority = 1;
 
-        ImGui::Begin("Opciones de modelado");
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 238.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(438.0f, 171.0f), ImGuiCond_Always);
+        ImGui::Begin("Opciones de modelado", nullptr, windowFlags);
         ImGui::InputInt("Tiempo de Llegada", &arriveTime);
         if (ImGui::InputInt("Tiempo de CPU", &timeCPU)) {
             if(timeCPU<1) timeCPU = 1;
@@ -194,7 +207,9 @@ void renderInterface(Simulator& simulador) {
         ImGui::End();
     }
     else {
-        ImGui::Begin("Rendimiento del Sistema (Ultimos 30 ticks)");
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 238.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(440.0f, 171.0f), ImGuiCond_Always);
+        ImGui::Begin("Rendimiento del Sistema (Ultimos 30 ticks)", nullptr, windowFlags);
         ImVec2 size = ImGui::GetContentRegionAvail();
         if (!simulador.historyCPU.empty()) {
             char overlay[32];
@@ -211,7 +226,9 @@ void renderInterface(Simulator& simulador) {
         }
         ImGui::End();
 
-        ImGui::Begin("Métricas de Rendimiento (Promedios)");
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 46.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(436.0f, 138.0f), ImGuiCond_Always);
+        ImGui::Begin("Métricas de Rendimiento (Promedios)", nullptr, windowFlags);
 
         ImGui::Columns(4, "MetricsColumns", false);
 
@@ -251,7 +268,9 @@ void renderInterface(Simulator& simulador) {
     }
 
     // Lista de procesos
-    ImGui::Begin("Lista de Procesos");
+    ImGui::SetNextWindowPos(ImVec2(0.0f, 408.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(1281.0f, 313.0f), ImGuiCond_Always);
+    ImGui::Begin("Lista de Procesos", nullptr, windowFlags);
     if (ImGui::BeginTable("TablaProcesos", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
         ImGui::TableSetupColumn("ID");
         ImGui::TableSetupColumn("Tiempo de Llegada");
@@ -290,7 +309,9 @@ void renderInterface(Simulator& simulador) {
     }
     ImGui::End();
 
-    ImGui::Begin("Cola de Listos");
+    ImGui::SetNextWindowPos(ImVec2(436.0f, 0.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(159.0f, 408.0f), ImGuiCond_Always);
+    ImGui::Begin("Cola de Listos", nullptr, windowFlags);
     if (ImGui::BeginTable("TablaListos", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
         ImGui::TableSetupColumn("ID");
         ImGui::TableSetupColumn("Prioridad");
@@ -305,7 +326,9 @@ void renderInterface(Simulator& simulador) {
     }
     ImGui::End();
 
-    ImGui::Begin("Cola de Bloqueados");
+    ImGui::SetNextWindowPos(ImVec2(594.0f, 0.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(287.0f, 408.0f), ImGuiCond_Always);
+    ImGui::Begin("Cola de Bloqueados", nullptr, windowFlags);
     if (ImGui::BeginTable("TablaBloqueados", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
         ImGui::TableSetupColumn("ID");
         ImGui::TableSetupColumn("Rafaga IO restante");
@@ -320,7 +343,9 @@ void renderInterface(Simulator& simulador) {
     }
     ImGui::End();
 
-    ImGui::Begin("Cola de Terminados");
+    ImGui::SetNextWindowPos(ImVec2(880.0f, 0.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(401.0f, 408.0f), ImGuiCond_Always);
+    ImGui::Begin("Cola de Terminados", nullptr, windowFlags);
     if (ImGui::BeginTable("TablaTerminados", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
         ImGui::TableSetupColumn("ID");
         ImGui::TableSetupColumn("Tiempo de llegada");
