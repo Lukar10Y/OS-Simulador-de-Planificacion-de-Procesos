@@ -37,6 +37,8 @@ struct Simulator {
     // Ticks de ocio
     int idleTime;
 
+    std::vector<float> historyCPU;
+
     Simulator();
     ~Simulator();
 

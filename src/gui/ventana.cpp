@@ -67,7 +67,7 @@ void renderInterface(Simulator& simulador) {
     ImGui::Text("Estado del Reloj del Sistema: %d ticks", simulador.actualTime);
     ImGui::End();
     
-    if(!isAuto && !simulador.isSimulating())
+    if(!simulador.isSimulating())
     {
         ImGui::Begin("Panel de Control");
         ImGui::Text("Establecer duracion del Tick (seg)"); 
@@ -133,8 +133,7 @@ void renderInterface(Simulator& simulador) {
             simulador.reset();
         }
     }
-    else
-    {
+    else {
         if (ImGui::Button("Stop (Dejar de Simular)")) {
             isAuto = false;
         }
@@ -191,6 +190,24 @@ void renderInterface(Simulator& simulador) {
             timeIO = distIO(gen);
             numCycles = distCycles(gen);
             priority = distPriority(gen);
+        }
+        ImGui::End();
+    }
+    else {
+        ImGui::Begin("Rendimiento del Sistema (Ultimos 30 ticks)");
+        ImVec2 size = ImGui::GetContentRegionAvail();
+        if (!simulador.historyCPU.empty()) {
+            char overlay[32];
+            sprintf(overlay, "Uso Actual del CPU: %.1f%%", simulador.historyCPU.back());
+            ImGui::PlotLines(
+            "##CPUGraph",
+            simulador.historyCPU.data(),
+            static_cast<int>(simulador.historyCPU.size()),
+            0,
+            overlay,
+            0.0f,
+            115.0f,
+            ImVec2(size.x, size.y));
         }
         ImGui::End();
     }

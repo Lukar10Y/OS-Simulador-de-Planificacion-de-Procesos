@@ -256,6 +256,11 @@ void Simulator::runTick(const float& time) {
         ++idleTime;
     }
     ++actualTime;
+    if(actualTime == 1) historyCPU.push_back(0.0f);
+    historyCPU.push_back(((actualTime - idleTime) / static_cast<float>(actualTime)) * 100.0f);
+    if (historyCPU.size() > 30) {
+        historyCPU.erase(historyCPU.begin());
+    }
     std::chrono::duration<float> tick(time);
     std::this_thread::sleep_for(tick);
 }
@@ -378,6 +383,7 @@ void Simulator::reset() {
     readyList.clear();
     blockedList.clear();
     terminatedList.clear();
+    historyCPU.clear();
 
     for (const Process* p : backupList) {
         Process* backup = new Process(*p); 
