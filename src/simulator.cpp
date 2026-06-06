@@ -23,11 +23,12 @@ Simulator::~Simulator() {
     blockedList.clear();
     terminatedList.clear();
     backupList.clear();
+    historyCPU.clear();
     runningProcess = nullptr;
     std::cout << "[Simulator] Memoria liberada con exito. Todos los bloques devueltos al S.O.\n" << std::endl;
 }
 
-std::vector<Process*> Simulator::getProcesses() {
+std::vector<Process*> Simulator::getAllProcesses() {
     std::vector<Process*> processes;
     for (Process* p : initialList)    { processes.push_back(p); }
     for (Process* p : readyList)      { processes.push_back(p); }
@@ -39,6 +40,15 @@ std::vector<Process*> Simulator::getProcesses() {
     std::sort(processes.begin(), processes.end(), [](const Process* a, const Process* b) {
         return a->id < b->id;
     });
+    return processes;
+}
+
+std::vector<Process*> Simulator::getArrivedProcesses() {
+    std::vector<Process*> processes;
+    for (Process* p : readyList)      { processes.push_back(p); }
+    for (Process* p : blockedList)    { processes.push_back(p); }
+    for (Process* p : terminatedList) { processes.push_back(p); }
+    if (runningProcess != nullptr) { processes.push_back(runningProcess); }
     return processes;
 }
 
@@ -222,6 +232,7 @@ void Simulator::runTickInConsole(const float& time) {
         ++idleTime;
     }
     ++actualTime;
+    getAverageMetrics();
     std::chrono::duration<float> tick(time);
     std::this_thread::sleep_for(tick);
 }
@@ -256,6 +267,7 @@ void Simulator::runTick(const float& time) {
         ++idleTime;
     }
     ++actualTime;
+    getAverageMetrics();
     if(actualTime == 1) historyCPU.push_back(0.0f);
     historyCPU.push_back(((actualTime - idleTime) / static_cast<float>(actualTime)) * 100.0f);
     if (historyCPU.size() > 30) {
@@ -334,6 +346,27 @@ void Simulator::getFinalAverageMetrics() {
     std::cout << "  Average Execution Time: " << totalExecutionTime / totalProcesses << "\n";
 }
 
+void Simulator::getAverageMetrics() {
+    std::vector<Process*> processes = getArrivedProcesses();
+    int totalProcesses = processes.size();
+    if(totalProcesses > 0) {
+
+        double totalWaitingTime = 0;
+        double totalBlockTime = 0;
+        double totalExecutionTime = 0;
+
+        for (Process* process : processes) {
+            totalWaitingTime += process->waitingTime;
+            totalBlockTime += process->blockTime;
+            totalExecutionTime += process->executionTime;
+        }
+
+        avgWaitingTime = totalWaitingTime / totalProcesses;
+        avgBlockTime = totalBlockTime / totalProcesses;
+        avgExecutionTime = totalExecutionTime / totalProcesses;
+    }  
+}
+
 void Simulator::deleteInitialProcess(const int& id)
 {
     Process* backupProcess = nullptr;
@@ -367,7 +400,7 @@ void Simulator::deleteInitialProcess(const int& id)
 }
 
 void Simulator::reset() {
-    actualTime = 0;
+    actualTime = avgWaitingTime = avgExecutionTime = avgBlockTime = 0;
 
     for (Process* p : initialList)    { delete p; }
     for (Process* p : readyList)      { delete p; }

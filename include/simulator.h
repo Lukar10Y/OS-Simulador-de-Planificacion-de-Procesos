@@ -39,6 +39,10 @@ struct Simulator {
 
     std::vector<float> historyCPU;
 
+    double avgWaitingTime;
+    double avgExecutionTime;
+    double avgBlockTime;
+
     Simulator();
     ~Simulator();
 
@@ -56,6 +60,9 @@ struct Simulator {
     void getFinalMetrics();
     void calcFinalMetrics();
     void getFinalAverageMetrics();
+
+    // Metricas en tiempo real
+    void getAverageMetrics();
 
     //  Imprimir colas segun el tick actual
     void print();
@@ -79,7 +86,8 @@ struct Simulator {
 
     // Getters
 
-    std::vector<Process*> getProcesses();
+    std::vector<Process*> getAllProcesses();
+    std::vector<Process*> getArrivedProcesses();
 
     // Setters
 

@@ -210,6 +210,44 @@ void renderInterface(Simulator& simulador) {
             ImVec2(size.x, size.y));
         }
         ImGui::End();
+
+        ImGui::Begin("Métricas de Rendimiento (Promedios)");
+
+        ImGui::Columns(4, "MetricsColumns", false);
+
+        ImGui::TextDisabled("Procesos");
+        ImGui::SetWindowFontScale(1.8f);
+        ImGui::Text("%lld", simulador.terminatedList.size());
+        ImGui::SetWindowFontScale(1.0f);
+        ImGui::Text("completados");
+
+        ImGui::NextColumn();
+
+        ImGui::TextDisabled("Espera");
+        ImGui::SetWindowFontScale(1.8f);
+        ImGui::Text("%.2f", simulador.avgWaitingTime);
+        ImGui::SetWindowFontScale(1.0f);
+        ImGui::Text("ticks");
+    
+        ImGui::NextColumn();
+
+        ImGui::TextDisabled("Ejecucion");
+        ImGui::SetWindowFontScale(1.8f);
+        ImGui::Text("%.2f", simulador.avgExecutionTime);
+        ImGui::SetWindowFontScale(1.0f);
+        ImGui::Text("ticks");
+
+        ImGui::NextColumn();
+
+        ImGui::TextDisabled("Bloqueo");
+        ImGui::SetWindowFontScale(1.8f);
+        ImGui::Text("%.2f", simulador.avgBlockTime);
+        ImGui::SetWindowFontScale(1.0f);
+        ImGui::Text("ticks");
+
+        ImGui::Columns(1); 
+
+        ImGui::End();
     }
 
     // Lista de procesos
@@ -225,7 +263,7 @@ void renderInterface(Simulator& simulador) {
         ImGui::TableSetupColumn("##");
         ImGui::TableHeadersRow();
 
-        for (const Process* process : simulador.getProcesses()) {
+        for (const Process* process : simulador.getAllProcesses()) {
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0); ImGui::Text("%d", process->id);
             ImGui::TableSetColumnIndex(1); ImGui::Text("%d", process->arrivalTime);
