@@ -257,6 +257,7 @@ static ImGui_ImplGlfw_Data* ImGui_ImplGlfw_GetBackendData(GLFWwindow* window)
 // Functions
 static bool ImGui_ImplGlfw_IsWayland()
 {
+    return false;
 #if !GLFW_HAS_WAYLAND
     return false;
 #elif GLFW_HAS_GETPLATFORM
