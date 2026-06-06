@@ -234,7 +234,7 @@ void renderInterface(Simulator& simulador) {
 
         ImGui::TextDisabled("Procesos");
         ImGui::SetWindowFontScale(1.8f);
-        ImGui::Text("%lld", simulador.terminatedList.size());
+        ImGui::Text("%d", (int)simulador.terminatedList.size());
         ImGui::SetWindowFontScale(1.0f);
         ImGui::Text("completados");
 

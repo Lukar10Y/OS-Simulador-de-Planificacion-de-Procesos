@@ -1,6 +1,6 @@
 # Variables del Compilador
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude
+CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude -DIMGUI_IMPL_GLFW_DISABLE_VERSION_CHECK
 OBJDIR = obj
 SRCDIR = src
 ALGODIR = src/algorithms
